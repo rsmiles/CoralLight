@@ -1,0 +1,24 @@
+name,key,pos
+"Species Code",species_code,7
+"# Isolates or put CLUMP or FRAG",#_isolates,8
+"Length or # Colonies if Tallied",length,9
+"Width or # Clumps",width,10
+"Height or # Fragments if Tallied",height,11
+"% Pale",%_pale,12
+"% Bleached",%_bleached,13
+"Bleach Code", bleach_code,14
+"New Partial Mortality",pm_new,15
+"Trans Partial Mortality",pm_trans,16
+"Old Partial Mortality",pm_old,17
+"Diseases",disease,18
+"Any ""Extra"" Bleaching",extra_bleach,19
+"Any ""Extra"" Mortality",extra_mortality,20
+"Comments, Loose, Wedge, Predators, Competitors, CHC",comments,21
+"Point Count L",pc_l,23
+"Point Count P",pc_p,24
+"Point Count BL",pc_bl,25
+"Point Count NM",pc_nm,26
+"Point Count TM",pc_tm,27
+"Point Count OM",pc_om,28
+"Point Count Other",pc_other,29
+"Transect Comments",transect_comments,30

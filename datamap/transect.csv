@@ -1,0 +1,8 @@
+name,key,pos
+"Transect #",transect_#,0
+"Start Time",start_time,1
+"Start Depth",start_depth,2
+"End Depth",end_depth,3
+"Depth Units (ft or m2)",depth_units,4
+"Area Surveyed (m2)",area_surveyed,5
+"Area Tallied (m2)",area_tallied,6

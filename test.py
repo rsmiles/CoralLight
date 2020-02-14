@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-import sys, AGRRA
-from pprint import pprint
+import AGRRA
+from tkinter import *
+from tkinter import filedialog
 
-input_file = sys.argv[1]
 
-data_sheets = AGRRA.load(input_file)
-
-for sheet in data_sheets:
-	pprint(data_sheets[sheet])
+root = Tk()
+mesg = Label(root, text='¡Hola Mundo!')
+mesg.pack()
+fname  = filedialog.askopenfilename(initialdir='.', title='Select a File')
+root.mainloop()
 
