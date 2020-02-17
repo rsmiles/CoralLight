@@ -1,24 +1,23 @@
-name,key,pos
-"Species Code",species_code,7
-"# Isolates or put CLUMP or FRAG",#_isolates,8
-"Length or # Colonies if Tallied",length,9
-"Width or # Clumps",width,10
-"Height or # Fragments if Tallied",height,11
-"% Pale",%_pale,12
-"% Bleached",%_bleached,13
-"Bleach Code", bleach_code,14
-"New Partial Mortality",pm_new,15
-"Trans Partial Mortality",pm_trans,16
-"Old Partial Mortality",pm_old,17
-"Diseases",disease,18
-"Any ""Extra"" Bleaching",extra_bleach,19
-"Any ""Extra"" Mortality",extra_mortality,20
-"Comments, Loose, Wedge, Predators, Competitors, CHC",comments,21
-"Point Count L",pc_l,23
-"Point Count P",pc_p,24
-"Point Count BL",pc_bl,25
-"Point Count NM",pc_nm,26
-"Point Count TM",pc_tm,27
-"Point Count OM",pc_om,28
-"Point Count Other",pc_other,29
-"Transect Comments",transect_comments,30
+key,pos,name
+species_code,7,"Species Code"
+num_isolates,8,"# Isolates or put CLUMP or FRAG"
+length,9,"Length or # Colonies if Tallied"
+width,10,"Width or # Clumps"
+height,11,"Height or # Fragments if Tallied"
+percent_pale,12,"% Pale"
+percent_bleached,13,"% Bleached"
+bleach_code,14,"Bleach Code"
+part_mort_new,15,"New Partial Mortality"
+part_mort_trans,16,"Trans Partial Mortality"
+part_mort_old,17,"Old Partial Mortality"
+disease,18,"Diseases"
+extra_bleach,19,"Any ""Extra"" Bleaching"
+extra_mort,20,"Any ""Extra"" Mortality"
+comments,21,"Comments, Loose, Wedge, Predators, Competitors, CHC"
+point_count_l,23,"Point Count L"
+point_count_p,24,"Point Count P"
+point_count_bl,25,"Point Count BL"
+point_count_nm,26,"Point Count NM"
+point_count_tm,27,"Point Count TM"
+point_count_om,28,"Point Count OM"
+point_count_other,29,"Point Count Other"
