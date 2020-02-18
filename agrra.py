@@ -63,7 +63,7 @@ def sql_insert(table, params, values):
 	ins_qry = 'INSERT INTO {0} ({1}) VALUES ({2})'.format(table, params_str, vals_str)
 	cursor.execute(ins_qry, values)
 
-def load_doc(xlsx):
+def import_xlsx(xlsx):
 	wb = load_workbook(xlsx)
 	doc_id = max_id('doc') + 1
 
@@ -113,4 +113,24 @@ def load_doc(xlsx):
 			sql_insert('encounter', enc_params, enc_values)
 
 	db.commit()
+
+def unzip_pairs(lst):
+	lst1 = []
+	lst2 = []
+
+	for e in lst:
+		lst1.append(e[0])
+		lst2.append(e[1])
+
+	return lst1, lst2
+
+def piechart(qry, saveas=None):
+	cursor.execute(qry)
+	res = cursor.fetchall()
+	labels, data = unzip_pairs(res)
+	pyplot.pie(data, labels=labels)
+	if saveas:
+		pyplot.savefig(saveas)
+	else:
+		pyplot.show()
 
