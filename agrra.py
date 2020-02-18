@@ -57,6 +57,7 @@ def max_id(table):
 	return mid
 
 def sql_insert(table, params, values):
+	values = [str(x) if type(x) == datetime.time else x for x in values]
 	params_str = ', '.join(params)
 	vals_str = ', '.join(['?' for x in values])
 	ins_qry = 'INSERT INTO {0} ({1}) VALUES ({2})'.format(table, params_str, vals_str)
@@ -74,8 +75,7 @@ def load_doc(xlsx):
 		for key in sheet_datamap:
 			if key != 'min_row' and key != 'max_col':
 				sheet_params.append(key)
-				val = val_to_sql(ws[sheet_datamap[key]['pos']].value)
-				sheet_values.append(val)
+				sheet_values.append(ws[sheet_datamap[key]['pos']].value)
 
 		sheet_params.append('doc_id')
 		sheet_values.append(doc_id)
@@ -94,8 +94,7 @@ def load_doc(xlsx):
 				trans_values = [created_transects[transnum]]
 				for key in transect_datamap:
 					trans_params.append(key)
-					val = val_to_sql(row[transect_datamap[key]['pos']].value)
-					trans_values.append(val)
+					trans_values.append(row[transect_datamap[key]['pos']].value)
 
 				trans_params.append('sheet_id')
 				trans_values.append(sheet_id)
@@ -107,8 +106,7 @@ def load_doc(xlsx):
 			enc_values = [enc_id]
 			for key in encounter_datamap:
 				enc_params.append(key)
-				val = val_to_sql(row[encounter_datamap[key]['pos']].value)
-				enc_values.append(val)
+				enc_values.append(row[encounter_datamap[key]['pos']].value)
 			enc_params.append('transect_id')
 			enc_values.append(created_transects[transnum])
 

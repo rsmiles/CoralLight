@@ -69,7 +69,7 @@ CREATE TABLE encounter (
 CREATE VIEW data AS
 SELECT *
 FROM doc
-LEFT OUTER JOIN sheet ON doc.doc_id = sheet.sheet_id
-LEFT OUTER JOIN transect ON sheet.sheet_id = transect.sheet_id
-LEFT OUTER JOIN encounter ON transect.transect_id = encounter.transect_id;
+INNER JOIN sheet ON doc.doc_id = sheet.doc_id
+INNER JOIN transect ON sheet.sheet_id = transect.sheet_id
+INNER JOIN encounter ON transect.transect_id = encounter.transect_id;
 
