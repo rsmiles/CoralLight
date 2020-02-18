@@ -60,7 +60,9 @@ def exec_qry():
 print_prompt()
 
 for line in sys.stdin:
-	if line[0] == ',':
+	if line[0] == '#':
+		pass
+	elif line[0] == ',':
 		command = line[:-1].split(' ')
 		run_command(command)
 	else:
