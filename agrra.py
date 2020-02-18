@@ -29,27 +29,37 @@ with open(ENCOUNTER_DATAMAP) as mapfile:
 		encounter_datamap[row['key']]=row
 		encounter_datamap[row['key']]['pos']=int(encounter_datamap[row['key']]['pos']) # convert positional values read to integers
 
+db = None
+cursor = None
+
 def open_db(name):
+	global db
+	global cursor
+
 	db = sqlite3.connect(name)
 
-	c = db.cursor()
+	cursor = db.cursor()
 
 	# Check if table structure has been initialized already. If not, initialize it.
-	c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='doc'")
-	if not c.fetchone()[0] == 1 :
+	cursor.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='doc'")
+	if not cursor.fetchone()[0] == 1 :
 		with open(DB_INIT) as initfile:
 			init = initfile.read()
 			for statement in init.split(';'):
-				c.execute(statement)
+				cursor.execute(statement)
 
-	c.close()
+
 	db.commit()
-	return db
 
-db = open_db(DB_PATH + 'agrra.db')
-cursor = db.cursor()
+def db_assert():
+	global db
+	global cursor
+
+	assert db, "No database loaded"
+	assert cursor, "No database cursor"
 
 def max_id(table):
+	db_assert()
 	cursor.execute('SELECT MAX(' + table + '_id) from ' + table)
 	mid = cursor.fetchone()[0]
 	if not mid:
@@ -57,6 +67,7 @@ def max_id(table):
 	return mid
 
 def sql_insert(table, params, values):
+	db_assert()
 	values = [str(x) if type(x) == datetime.time else x for x in values]
 	params_str = ', '.join(params)
 	vals_str = ', '.join(['?' for x in values])
@@ -64,6 +75,8 @@ def sql_insert(table, params, values):
 	cursor.execute(ins_qry, values)
 
 def import_xlsx(xlsx):
+	db_assert()
+
 	wb = load_workbook(xlsx)
 	doc_id = max_id('doc') + 1
 
@@ -125,6 +138,7 @@ def unzip_pairs(lst):
 	return lst1, lst2
 
 def piechart(qry, saveas=None):
+	db_assert()
 	cursor.execute(qry)
 	res = cursor.fetchall()
 	labels, data = unzip_pairs(res)
