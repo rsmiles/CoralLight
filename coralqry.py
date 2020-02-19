@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import agrra, sys
+import agrra, os, sys
 
 qry = ''
 saveas = ''
+title = ''
 
 non_interactive = False
 
@@ -26,9 +27,26 @@ def coralqry_saveas(*args):
 	else:
 		saveas = ' '.join(args)
 
+def coralqry_title(*args):
+	global title
+	title = ' '.join(args)
+
+def coralqry_importdir(*args):
+	directory = ' '.join(args)
+
+	if directory[-1] != '/':
+		directory += '/'
+
+	for f in os.listdir(directory):
+		ext = os.path.splitext(f)[1]
+		if ext == '.xlsx':
+			coralqry_import(directory + f)
+
 builtins = {'exit': coralqry_exit,
 			'opendb': coralqry_opendb,
 			'import': coralqry_import,
+			'importdir': coralqry_importdir,
+			'title': coralqry_title,
 			'saveas': coralqry_saveas}
 
 def run_command(command):
@@ -48,12 +66,12 @@ def exec_qry():
 		if saveas == '':
 			raise Exception('No name specified for piechart')
 		else:
-			agrra.piechart(qry, saveas)
+			agrra.piechart(qry, title=title, saveas=saveas)
 	else:
 		if saveas == '':
-			agrra.piechart(qry)
+			agrra.piechart(qry, title=title)
 		else:
-			agrra.piechart(qry, saveas)
+			agrra.piechart(qry, title=title, saveas=saveas)
 
 	qry = ''
 

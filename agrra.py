@@ -5,7 +5,8 @@
 from openpyxl import load_workbook
 from config import *
 from matplotlib import pyplot
-import atexit, csv, datetime, os, sqlite3
+import atexit, csv, datetime, os, random, sqlite3
+import numpy as np
 
 sheet_datamap = {}
 with open(SHEET_DATAMAP) as mapfile:
@@ -137,14 +138,35 @@ def unzip_pairs(lst):
 
 	return lst1, lst2
 
-def piechart(qry, saveas=None):
+def piechart(qry, title='', saveas=None):
 	db_assert()
 	cursor.execute(qry)
 	res = cursor.fetchall()
+	print(res)
+	res.sort(key=lambda e: e[1])
 	labels, data = unzip_pairs(res)
-	pyplot.pie(data, labels=labels)
+
+	total = sum(data)
+	percent = [(x / total) * 100 for x in data]
+
+	fig, axis = pyplot.subplots()
+
+	wedges, texts = axis.pie(data)
+
+	chart_labels = []
+	for i, label in enumerate(labels):
+		chart_labels.append('{0}: {1}% ({2})'.format(label, round(percent[i], 1), data[i]))
+
+	print(title)
+	axis.set_title(title)
+	axis.axis('equal')
+
+	chartBox = axis.get_position()
+	axis.set_position([chartBox.x0, chartBox.y0, chartBox.width*0.6, chartBox.height])
+	axis.legend(wedges, chart_labels, title='Total: {0}'.format(total), loc='upper center', bbox_to_anchor=(1.4, 1.15), shadow=True)
+
 	if saveas:
-		pyplot.savefig(saveas)
+		pyplot.savefig(saveas, bbox_inches='tight')
 	else:
 		pyplot.show()
 
