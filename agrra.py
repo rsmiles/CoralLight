@@ -5,8 +5,8 @@
 from openpyxl import load_workbook
 from config import *
 from matplotlib import pyplot
-import atexit, csv, datetime, os, random, sqlite3
-import numpy as np
+from PIL import Image
+import atexit, csv, datetime, io, os, random, sqlite3
 
 sheet_datamap = {}
 with open(SHEET_DATAMAP) as mapfile:
@@ -138,11 +138,10 @@ def unzip_pairs(lst):
 
 	return lst1, lst2
 
-def piechart(qry, title='', saveas=None):
+def piechart(qry, title='', saveas='', interactive=False):
 	db_assert()
 	cursor.execute(qry)
 	res = cursor.fetchall()
-	print(res)
 	res.sort(key=lambda e: e[1])
 	labels, data = unzip_pairs(res)
 
@@ -163,10 +162,19 @@ def piechart(qry, title='', saveas=None):
 
 	chartBox = axis.get_position()
 	axis.set_position([chartBox.x0, chartBox.y0, chartBox.width*0.6, chartBox.height])
-	axis.legend(wedges, chart_labels, title='Total: {0}'.format(total), loc='upper center', bbox_to_anchor=(1.4, 1.15), shadow=True)
+	legend = axis.legend(wedges, chart_labels, title='Total: {0}'.format(total), loc='upper center', bbox_to_anchor=(1.4, 1.15), shadow=True)
 
-	if saveas:
-		pyplot.savefig(saveas, bbox_inches='tight')
+	if saveas != '':
+		pyplot.savefig(saveas, bbox_extra_artists=(legend,), bbox_inches='tight', start_angle=90)
+		if interactive:
+			img = Image.open(saveas)
+			img.show()
 	else:
-		pyplot.show()
+		if interactive:
+			buff = io.BytesIO()
+			pyplot.savefig(buff, bbox_extra_artists=(legend,), bbox_inches='tight', start_angle=90)
+			img = Image.open(buff)
+			img.show()
+		else:
+			raise Exception('No save file specified in non-interactive mode')
 

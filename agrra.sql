@@ -66,10 +66,18 @@ CREATE TABLE encounter (
 	FOREIGN KEY(transect_id) REFERENCES transect(transect_id)
 );
 
+CREATE TABLE coral (
+	coral_id INTEGER PRIMARY KEY,
+	species_code TEXT NOT NULL,
+	genus TEXT NOT NULL,
+	species TEXT NOT NULL
+);
+
 CREATE VIEW data AS
 SELECT *
 FROM doc
 INNER JOIN sheet ON doc.doc_id = sheet.doc_id
 INNER JOIN transect ON sheet.sheet_id = transect.sheet_id
 INNER JOIN encounter ON transect.transect_id = encounter.transect_id;
+INNER JOIN coral ON encounter.species_code = coral.species_code;
 

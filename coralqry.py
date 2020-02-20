@@ -62,16 +62,7 @@ def print_prompt():
 def exec_qry():
 	global qry
 
-	if non_interactive:
-		if saveas == '':
-			raise Exception('No name specified for piechart')
-		else:
-			agrra.piechart(qry, title=title, saveas=saveas)
-	else:
-		if saveas == '':
-			agrra.piechart(qry, title=title)
-		else:
-			agrra.piechart(qry, title=title, saveas=saveas)
+	agrra.piechart(qry, title=title, saveas=saveas, interactive=not non_interactive)
 
 	qry = ''
 
