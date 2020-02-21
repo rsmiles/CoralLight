@@ -3,6 +3,7 @@ CREATE TABLE coral (
 	species_id TEXT NOT NULL,
 	genus TEXT NOT NULL,
 	species TEXT NOT NULL
+	common_name TEXT
 );
 
 --INSERT INTO coral(

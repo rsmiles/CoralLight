@@ -3,10 +3,29 @@
 # Library for loading AGRRA coral transects
 
 from openpyxl import load_workbook
-from config import *
 from matplotlib import pyplot
 from PIL import Image
-import atexit, csv, datetime, io, os, random, sqlite3
+import atexit, config, csv, datetime, io, os, random, sqlite3
+
+DATAMAP_PATH = config.APP_PATH + 'datamap/'
+SHEET_DATAMAP = DATAMAP_PATH + 'sheet.csv'
+TRANSECT_DATAMAP=DATAMAP_PATH + 'transect.csv'
+ENCOUNTER_DATAMAP=DATAMAP_PATH + 'encounter.csv'
+DB_INIT = 'APP_PATH agrra.sql'
+
+def gen_config(app_path=config.APP_PATH):
+	config_str= \
+'''APP_PATH = '{0}'
+DB = '{1}'
+'''
+	with open(config.APP_PATH + 'config.py.tmp', 'w') as config_file:
+		config_file.write(config_str.format(app_path, config.DB))
+		os.replace(config.APP_PATH + 'config.py.tmp', config.APP_PATH + 'config.py')
+
+def agraa_atexit():
+	gen_config()
+
+atexit.register(agraa_atexit)
 
 sheet_datamap = {}
 with open(SHEET_DATAMAP) as mapfile:
@@ -33,6 +52,10 @@ with open(ENCOUNTER_DATAMAP) as mapfile:
 db = None
 cursor = None
 
+if config.DB:
+	db = sqlite3.connect(config.DB)
+	cursor = db.cursor()
+
 def open_db(name):
 	global db
 	global cursor
@@ -51,6 +74,7 @@ def open_db(name):
 
 
 	db.commit()
+	config.DB = name
 
 def db_assert():
 	global db
