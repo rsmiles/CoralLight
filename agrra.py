@@ -5,7 +5,8 @@
 from openpyxl import load_workbook
 from matplotlib import pyplot
 from PIL import Image
-from palettable.tableau import Tableau_20 as pallete
+from palettable.tableau import Tableau_20 as pallete_20
+from palettable.tableau import Tableau_10 as pallete_10
 import atexit, config, csv, datetime, io, os, random, sqlite3
 
 DATAMAP_PATH = config.APP_PATH + 'datamap/'
@@ -15,7 +16,8 @@ ENCOUNTER_DATAMAP=DATAMAP_PATH + 'encounter.csv'
 DB_INIT = config.APP_PATH + 'agrra.sql'
 CORAL_INIT = config.APP_PATH + 'coral.csv'
 
-COLORS = pallete.mpl_colors
+COLORS_10 = pallete_10.mpl_colors
+COLORS_20 = pallete_20.mpl_colors
 
 def gen_config(app_path=config.APP_PATH):
 	config_str= \
@@ -207,11 +209,16 @@ def piechart(qry, title='', saveas='', interactive=False):
 	labels, data = unzip_pairs(res)
 
 	total = sum(data)
+	npoints = len(data)
+
 	percent = [(x / total) * 100 for x in data]
 
 	fig, axis = pyplot.subplots()
 
-	axis.set_prop_cycle(color=COLORS)
+	if npoints > 10:
+		axis.set_prop_cycle(color=COLORS_10)
+	else:
+		axis.set_prop_cycle(color=COLORS_20)
 
 	wedges, texts = axis.pie(data, startangle=75, shadow=True)
 
