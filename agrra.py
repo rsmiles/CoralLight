@@ -11,7 +11,8 @@ DATAMAP_PATH = config.APP_PATH + 'datamap/'
 SHEET_DATAMAP = DATAMAP_PATH + 'sheet.csv'
 TRANSECT_DATAMAP=DATAMAP_PATH + 'transect.csv'
 ENCOUNTER_DATAMAP=DATAMAP_PATH + 'encounter.csv'
-DB_INIT = 'APP_PATH agrra.sql'
+DB_INIT = config.APP_PATH + 'agrra.sql'
+CORAL_INIT = config.APP_PATH + 'coral.csv'
 
 def gen_config(app_path=config.APP_PATH):
 	config_str= \
@@ -52,9 +53,11 @@ with open(ENCOUNTER_DATAMAP) as mapfile:
 db = None
 cursor = None
 
-if config.DB:
-	db = sqlite3.connect(config.DB)
-	cursor = db.cursor()
+def str2None(x):
+	if x == '':
+		return None
+	else:
+		return x
 
 def open_db(name):
 	global db
@@ -67,14 +70,31 @@ def open_db(name):
 	# Check if table structure has been initialized already. If not, initialize it.
 	cursor.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='doc'")
 	if not cursor.fetchone()[0] == 1 :
+		# Execute db init file...
 		with open(DB_INIT) as initfile:
 			init = initfile.read()
 			for statement in init.split(';'):
 				cursor.execute(statement)
 
+		# Initialize coral table...
+		coralmap = {}
+		with open(CORAL_INIT) as coralfile:
+			reader = csv.DictReader(coralfile)
+			for i, row in enumerate(reader):
+				species_code = None
+				if row['species'] != '':
+					species_code = row['genus'][0].upper() + row['species'][:3].upper()
+				insert_qry = \
+'''INSERT INTO coral (coral_id, species_code, genus, species)
+VALUES (?, ?, ?, ?);'''
+				cursor.execute(insert_qry, [i + 1, species_code, str2None(row['genus']), str2None(row['species'])])
 
 	db.commit()
 	config.DB = name
+
+if config.DB:
+	open_db(config.DB)
+
 
 def db_assert():
 	global db
@@ -143,11 +163,25 @@ def import_xlsx(xlsx):
 			enc_params = ['encounter_id']
 			enc_values = [enc_id]
 			for key in encounter_datamap:
-				enc_params.append(key)
-				enc_values.append(row[encounter_datamap[key]['pos']].value)
+				if key == 'species_code':
+					species_code = row[encounter_datamap[key]['pos']].value
+					qry = 'SELECT coral_id FROM coral WHERE species_code=?'
+					cursor.execute(qry, (species_code,))
+					res = cursor.fetchone()
+					if not res:
+						searchtext = species_code.split()[0] + '%'
+						qry = 'SELECT coral_id FROM coral WHERE UPPER(genus) LIKE ? AND species IS NULL'
+						cursor.execute(qry, (searchtext,))
+						res = cursor.fetchone()
+						if not res:
+							raise Exception('Unkown Species Code: ' + species_code)
+					enc_params.append('coral_id')
+					enc_values.append(res[0])
+				else:
+					enc_params.append(key)
+					enc_values.append(row[encounter_datamap[key]['pos']].value)
 			enc_params.append('transect_id')
 			enc_values.append(created_transects[transnum])
-
 			sql_insert('encounter', enc_params, enc_values)
 
 	db.commit()
@@ -166,7 +200,7 @@ def piechart(qry, title='', saveas='', interactive=False):
 	db_assert()
 	cursor.execute(qry)
 	res = cursor.fetchall()
-	res.sort(key=lambda e: e[1])
+	res.sort(key=lambda e: e[1], reverse=True)
 	labels, data = unzip_pairs(res)
 
 	total = sum(data)
@@ -180,7 +214,6 @@ def piechart(qry, title='', saveas='', interactive=False):
 	for i, label in enumerate(labels):
 		chart_labels.append('{0}: {1}% ({2})'.format(label, round(percent[i], 1), data[i]))
 
-	print(title)
 	axis.set_title(title)
 	axis.axis('equal')
 
@@ -189,7 +222,7 @@ def piechart(qry, title='', saveas='', interactive=False):
 	legend = axis.legend(wedges, chart_labels, title='Total: {0}'.format(total), loc='upper center', bbox_to_anchor=(1.4, 1.15), shadow=True)
 
 	if saveas != '':
-		pyplot.savefig(saveas, bbox_extra_artists=(legend,), bbox_inches='tight', start_angle=90)
+		pyplot.savefig(saveas, bbox_extra_artists=(legend,), bbox_inches='tight')
 		if interactive:
 			img = Image.open(saveas)
 			img.show()
