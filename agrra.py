@@ -216,9 +216,9 @@ def piechart(qry, title='', saveas='', interactive=False):
 	fig, axis = pyplot.subplots()
 
 	if npoints > 10:
-		axis.set_prop_cycle(color=COLORS_10)
-	else:
 		axis.set_prop_cycle(color=COLORS_20)
+	else:
+		axis.set_prop_cycle(color=COLORS_10)
 
 	wedges, texts = axis.pie(data, startangle=75, shadow=True)
 
