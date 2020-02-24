@@ -5,6 +5,7 @@
 from openpyxl import load_workbook
 from matplotlib import pyplot
 from PIL import Image
+from palettable.tableau import Tableau_20 as pallete
 import atexit, config, csv, datetime, io, os, random, sqlite3
 
 DATAMAP_PATH = config.APP_PATH + 'datamap/'
@@ -13,6 +14,8 @@ TRANSECT_DATAMAP=DATAMAP_PATH + 'transect.csv'
 ENCOUNTER_DATAMAP=DATAMAP_PATH + 'encounter.csv'
 DB_INIT = config.APP_PATH + 'agrra.sql'
 CORAL_INIT = config.APP_PATH + 'coral.csv'
+
+COLORS = pallete.mpl_colors
 
 def gen_config(app_path=config.APP_PATH):
 	config_str= \
@@ -208,7 +211,9 @@ def piechart(qry, title='', saveas='', interactive=False):
 
 	fig, axis = pyplot.subplots()
 
-	wedges, texts = axis.pie(data)
+	axis.set_prop_cycle(color=COLORS)
+
+	wedges, texts = axis.pie(data, startangle=75, shadow=True)
 
 	chart_labels = []
 	for i, label in enumerate(labels):
