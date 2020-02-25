@@ -98,7 +98,10 @@ VALUES (?, ?, ?, ?);'''
 	config.DB = name
 
 if config.DB:
-	open_db(config.DB)
+	if os.path.isfile(config.DB):
+		open_db(config.DB)
+	else:
+		config.DB = None
 
 
 def db_assert():
