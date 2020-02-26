@@ -5,4 +5,3 @@
 
 diff f1.tmp f2.tmp
 
-rm f1.tmp f2.tmp
