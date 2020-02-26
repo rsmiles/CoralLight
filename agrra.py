@@ -229,12 +229,13 @@ def piechart(qry, title='', saveas='', interactive=False):
 	for i, label in enumerate(labels):
 		chart_labels.append('{0}: {1}% ({2})'.format(label, round(percent[i], 1), data[i]))
 
-	axis.set_title(title)
 	axis.axis('equal')
 
 	chartBox = axis.get_position()
 	axis.set_position([chartBox.x0, chartBox.y0, chartBox.width*0.6, chartBox.height])
-	legend = axis.legend(wedges, chart_labels, title='Total: {0}'.format(total), loc='upper center', bbox_to_anchor=(1.4, 1.15), shadow=True)
+	legend = axis.legend(wedges, chart_labels, title='Total: {0}'.format(total), loc='upper left', bbox_to_anchor=(1.1, 0.9), shadow=True)
+
+	# pyplot.title(title)
 
 	if saveas != '':
 		pyplot.savefig(saveas, bbox_extra_artists=(legend,), bbox_inches='tight')
