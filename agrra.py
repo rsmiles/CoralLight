@@ -5,6 +5,8 @@
 from openpyxl import load_workbook
 from matplotlib import pyplot
 from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
 from palettable.tableau import Tableau_20 as pallete_20
 from palettable.tableau import Tableau_10 as pallete_10
 import atexit, config, csv, datetime, io, os, random, sqlite3
@@ -18,6 +20,8 @@ CORAL_INIT = config.APP_PATH + 'coral.csv'
 
 COLORS_10 = pallete_10.mpl_colors
 COLORS_20 = pallete_20.mpl_colors
+
+TITLE_FONT = ImageFont.truetype('LiberationSerif-Bold.ttf', 20)
 
 def gen_config(app_path=config.APP_PATH):
 	config_str= \
@@ -237,17 +241,24 @@ def piechart(qry, title='', saveas='', interactive=False):
 
 	# pyplot.title(title)
 
-	if saveas != '':
-		pyplot.savefig(saveas, bbox_extra_artists=(legend,), bbox_inches='tight')
+	buff = io.BytesIO()
+	pyplot.savefig(buff, bbox_extra_artists=(legend,), bbox_inches='tight', start_angle=90)
+	img = Image.open(buff)
+	draw = ImageDraw.Draw(img)
+
+	if title != '':
+		imgwidth, imgheight = img.size
+		textwidth, textheight = draw.textsize(title, font=TITLE_FONT)
+		text_x = imgwidth / 2 - textwidth / 2
+		draw.text((text_x, 10), title, fill='black', font=TITLE_FONT)
+
+	if saveas == '':
 		if interactive:
-			img = Image.open(saveas)
-			img.show()
-	else:
-		if interactive:
-			buff = io.BytesIO()
-			pyplot.savefig(buff, bbox_extra_artists=(legend,), bbox_inches='tight', start_angle=90)
-			img = Image.open(buff)
 			img.show()
 		else:
 			raise Exception('No save file specified in non-interactive mode')
+	else:
+		img.save(saveas)
+		if interactive:
+			img.show()
 
