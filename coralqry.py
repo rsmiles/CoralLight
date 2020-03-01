@@ -5,6 +5,7 @@ import agrra, os, sys
 qry = ''
 saveas = ''
 title = ''
+chart = 'pie'
 
 non_interactive = False
 
@@ -42,12 +43,17 @@ def coralqry_importdir(*args):
 		if ext == '.xlsx':
 			coralqry_import(directory + f)
 
+def coralqry_chart(arg):
+	global chart
+	chart = arg
+
 builtins = {'exit': coralqry_exit,
 			'opendb': coralqry_opendb,
 			'import': coralqry_import,
 			'importdir': coralqry_importdir,
 			'title': coralqry_title,
-			'saveas': coralqry_saveas}
+			'saveas': coralqry_saveas,
+			'chart': coralqry_chart}
 
 def run_command(command):
 	return builtins[command[0][1:]](*command[1:])
@@ -61,8 +67,8 @@ def print_prompt():
 
 def exec_qry():
 	global qry
-
-	agrra.piechart(qry, title=title, saveas=saveas, interactive=not non_interactive)
+	global chart
+	agrra.chart(qry, chart, title=title, saveas=saveas, interactive=not non_interactive)
 
 	qry = ''
 

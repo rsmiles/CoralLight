@@ -4,6 +4,7 @@
 
 from openpyxl import load_workbook
 from matplotlib import pyplot
+from matplotlib import font_manager
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -208,7 +209,7 @@ def unzip_pairs(lst):
 
 	return lst1, lst2
 
-def piechart(qry, title='', saveas='', interactive=False):
+def chart(qry, chart_type, title='', saveas='', interactive=False):
 	db_assert()
 	cursor.execute(qry)
 	res = cursor.fetchall()
@@ -227,30 +228,43 @@ def piechart(qry, title='', saveas='', interactive=False):
 	else:
 		axis.set_prop_cycle(color=COLORS_10)
 
-	wedges, texts = axis.pie(data, startangle=75, shadow=True)
-
-	chart_labels = []
-	for i, label in enumerate(labels):
-		chart_labels.append('{0}: {1}% ({2})'.format(label, round(percent[i], 1), data[i]))
-
-	axis.axis('equal')
-
-	chartBox = axis.get_position()
-	axis.set_position([chartBox.x0, chartBox.y0, chartBox.width*0.6, chartBox.height])
-	legend = axis.legend(wedges, chart_labels, title='Total: {0}'.format(total), loc='upper left', bbox_to_anchor=(1.1, 0.9), shadow=True)
-
-	# pyplot.title(title)
-
 	buff = io.BytesIO()
-	pyplot.savefig(buff, bbox_extra_artists=(legend,), bbox_inches='tight', start_angle=90)
-	img = Image.open(buff)
-	draw = ImageDraw.Draw(img)
 
-	if title != '':
-		imgwidth, imgheight = img.size
-		textwidth, textheight = draw.textsize(title, font=TITLE_FONT)
-		text_x = imgwidth / 2 - textwidth / 2
-		draw.text((text_x, 10), title, fill='black', font=TITLE_FONT)
+	img = None
+	draw = None
+
+	if chart_type == 'pie':
+		wedges, texts = axis.pie(data, startangle=75, shadow=True)
+		axis.axis('equal')
+
+		chartBox = axis.get_position()
+		axis.set_position([chartBox.x0, chartBox.y0, chartBox.width*0.6, chartBox.height])
+
+		chart_labels = []
+		for i, label in enumerate(labels):
+			chart_labels.append('{0}: {1}% ({2})'.format(label, round(percent[i], 1), data[i]))
+
+		legend = axis.legend(wedges, chart_labels, title='Total: {0}'.format(total), loc='upper left', bbox_to_anchor=(1.1, 0.9), shadow=True)
+		pyplot.savefig(buff, bbox_extra_artists=(legend,), bbox_inches='tight', start_angle=90)
+		img = Image.open(buff)
+		draw = ImageDraw.Draw(img)
+
+		if title != '':
+			imgwidth, imgheight = img.size
+			textwidth, textheight = draw.textsize(title, font=TITLE_FONT)
+			text_x = imgwidth / 2 - textwidth / 2
+			draw.text((text_x, 10), title, fill='black', font=TITLE_FONT)
+
+	if chart_type == 'bar':
+		if title != '':
+			pyplot.title(title, {'fontname': 'Liberation Serif', 'fontweight': 'bold'})
+
+		chart_labels = [label +  ' (' + str(data[i]) + ')' for i, label in enumerate(labels)]
+		pyplot.xticks(range(len(chart_labels)), chart_labels, rotation='vertical')
+		axis.bar(range(len(chart_labels)), data)
+		pyplot.savefig(buff, bbox_inches='tight')
+		img = Image.open(buff)
+
 
 	if saveas == '':
 		if interactive:
