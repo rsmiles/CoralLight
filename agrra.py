@@ -276,3 +276,4 @@ def chart(qry, chart_type, title='', saveas='', interactive=False):
 		if interactive:
 			img.show()
 
+	pyplot.close(fig)
