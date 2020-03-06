@@ -209,12 +209,13 @@ def unzip_pairs(lst):
 
 	return lst1, lst2
 
-def chart(qry, chart_type, title='', saveas='', interactive=False):
+def chart(qry, chart_type, title='', saveas='', ymax=None, interactive=False):
 	db_assert()
 	cursor.execute(qry)
 	res = cursor.fetchall()
 	res.sort(key=lambda e: e[1], reverse=True)
 	labels, data = unzip_pairs(res)
+	data = [round(x, 1) for x in data]
 
 	total = sum(data)
 	npoints = len(data)
@@ -261,6 +262,10 @@ def chart(qry, chart_type, title='', saveas='', interactive=False):
 
 		chart_labels = [label +  ' (' + str(data[i]) + ')' for i, label in enumerate(labels)]
 		pyplot.xticks(range(len(chart_labels)), chart_labels, rotation='vertical')
+
+		if ymax:
+			axis.set_ylim(ymax=ymax)
+
 		axis.bar(range(len(chart_labels)), data)
 		pyplot.savefig(buff, bbox_inches='tight')
 		img = Image.open(buff)

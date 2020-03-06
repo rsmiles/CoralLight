@@ -6,6 +6,7 @@ qry = ''
 saveas = ''
 title = ''
 chart = 'pie'
+ymax = None
 
 non_interactive = False
 
@@ -47,13 +48,18 @@ def coralqry_chart(arg):
 	global chart
 	chart = arg
 
+def coralqry_ymax(arg):
+	global ymax
+	ymax = int(arg)
+
 builtins = {'exit': coralqry_exit,
 			'opendb': coralqry_opendb,
 			'import': coralqry_import,
 			'importdir': coralqry_importdir,
 			'title': coralqry_title,
 			'saveas': coralqry_saveas,
-			'chart': coralqry_chart}
+			'chart': coralqry_chart,
+			'ymax': coralqry_ymax}
 
 def run_command(command):
 	return builtins[command[0][1:]](*command[1:])
@@ -68,7 +74,9 @@ def print_prompt():
 def exec_qry():
 	global qry
 	global chart
-	agrra.chart(qry, chart, title=title, saveas=saveas, interactive=not non_interactive)
+	global ymax
+	global non_interactive
+	agrra.chart(qry, chart, title=title, saveas=saveas, ymax=ymax, interactive=not non_interactive)
 
 	qry = ''
 
