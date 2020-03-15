@@ -217,7 +217,7 @@ def chart(qry, chart_type, title='', saveas='', ymax=None, interactive=False):
 	labels, data = unzip_pairs(res)
 	data = [round(x, 1) for x in data]
 
-	total = sum(data)
+	total = round(sum(data), 1)
 	npoints = len(data)
 
 	percent = [(x / total) * 100 for x in data]
