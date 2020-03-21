@@ -1,2 +1,2 @@
-APP_PATH = '/media/veracrypt1/src/'
-DB = 'db/test.db'
+APP_PATH = '/home/robert/src/CoraLight/'
+DB = 'None'
