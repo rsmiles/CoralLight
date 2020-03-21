@@ -210,7 +210,6 @@ def unzip_pairs(lst):
 
 def chart(qry, chart_type, title='', saveas='', ymax=None, interactive=False):
     db_assert()
-    print('assert passed')
     cursor.execute(qry)
     res = cursor.fetchall()
     res.sort(key=lambda e: e[1], reverse=True)
