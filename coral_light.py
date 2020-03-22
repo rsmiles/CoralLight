@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import agrra, os, sys
+import agrra, os, re, sys
 
 class CoralLight_State:
     def __init__(self):
@@ -12,6 +12,27 @@ class CoralLight_State:
         self.interactive = True
 
 state = CoralLight_State()
+
+def subvar(query, var_name, value):
+	return re.sub('\$' + re.escape(var_name), value, query)
+
+def subvars(query, var_list):
+	nvals = len(var_list[0][1])
+
+	for binding in var_list:
+		assert len(binding[1]) == nvals, 'All variables must have the same number of values'
+
+	results = []
+	val_index = 0
+	while val_index < nvals:
+		new_query = query
+		for binding in var_list:
+			new_query = subvar(new_query, binding[0], binding[1][val_index])
+
+		results.append(new_query)
+		val_index += 1
+
+	return results
 
 if '-n' in sys.argv or '--non-interactive' in sys.argv:
 	state.interactive = False
