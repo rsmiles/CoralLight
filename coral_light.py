@@ -3,13 +3,14 @@
 import agrra, os, re, sys
 
 class CoralLight_State:
-    def __init__(self):
-        self.query = ''
-        self.saveas = ''
-        self.title = ''
-        self.ymax = ''
-        self.chart = 'pie'
-        self.interactive = True
+	def __init__(self):
+		self.query = ''
+		self.saveas = ''
+		self.title = ''
+		self.ymax = ''
+		self.chart = 'pie'
+		self.interactive = True
+		self.params = []
 
 state = CoralLight_State()
 
@@ -76,6 +77,15 @@ def corallight_ymax(arg):
 	global state
 	state.ymax = int(arg)
 
+def corallight_param(*args):
+	global state
+	state.params.append((args[0], args[1:]))
+
+def corallight_clearparams():
+	global state
+	state.params = []
+	
+
 builtins = {'exit': corallight_exit,
 			'opendb': corallight_opendb,
 			'import': corallight_import,
@@ -83,7 +93,9 @@ builtins = {'exit': corallight_exit,
 			'title': corallight_title,
 			'saveas': corallight_saveas,
 			'chart': corallight_chart,
-			'ymax': corallight_ymax}
+			'ymax': corallight_ymax,
+			'param': corallight_param,
+			'clearparams': corallight_clearparams}
 
 def run_command(command):
 	return builtins[command[0][1:]](*command[1:])
@@ -107,6 +119,7 @@ def exec_qry():
 	if state.saveas:
 		chart.save(state.saveas)
 	state.query = ''
+	corallight_clearparams()
 
 print_prompt()
 
