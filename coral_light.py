@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
 
-import agrra, os, re, sys
+import agrra, os, sys
 
 class CoralLight_State:
 	def __init__(self):
 		self.query = ''
-		self.saveas = ''
 		self.title = ''
+		self.saveas = ''
 		self.ymax = ''
 		self.chart = 'pie'
-		self.interactive = True
-		self.params = []
+		self.mode = 'INTERACTIVE'
 
 state = CoralLight_State()
 
 def subvar(query, var_name, value):
-	return re.sub('\$' + re.escape(var_name), value, query)
+	return query.replace('$' + var_name, value)
 
 def subvars(query, var_list):
 	nvals = len(var_list[0][1])
@@ -36,7 +35,7 @@ def subvars(query, var_list):
 	return results
 
 if '-n' in sys.argv or '--non-interactive' in sys.argv:
-	state.interactive = False
+	state.mode = 'NON_INTERACTIVE'
 
 def corallight_exit():
 	sys.exit()
@@ -77,14 +76,6 @@ def corallight_ymax(arg):
 	global state
 	state.ymax = int(arg)
 
-def corallight_param(*args):
-	global state
-	state.params.append((args[0], args[1:]))
-
-def corallight_clearparams():
-	global state
-	state.params = []
-	
 
 builtins = {'exit': corallight_exit,
 			'opendb': corallight_opendb,
@@ -93,9 +84,7 @@ builtins = {'exit': corallight_exit,
 			'title': corallight_title,
 			'saveas': corallight_saveas,
 			'chart': corallight_chart,
-			'ymax': corallight_ymax,
-			'param': corallight_param,
-			'clearparams': corallight_clearparams}
+			'ymax': corallight_ymax}
 
 def run_command(command):
 	return builtins[command[0][1:]](*command[1:])
@@ -104,41 +93,61 @@ PROMPT = 'corallight_$: '
 
 def print_prompt():
 	global state
-	if state.interactive:
+	if state.mode == 'INTERACTIVE':
 		sys.stdout.write(PROMPT)
 		sys.stdout.flush()
 
-def exec_qry():
-	global state
-	chart = agrra.chart(state.query, state.chart, title=state.title, ymax=state.ymax)
-	if state.interactive:
+def exec_qry(query, chart, title, ymax, saveas):
+	chart = agrra.chart(query, chart, title=title, ymax=ymax)
+	if MODE == 'INTERACTIVE':
 	    chart.show()
 	else:
-		assert state.saveas, 'No save file specified when running in non-interactive mode'
+		assert saveas, 'No save file specified when running in non-interactive mode'
 
-	if state.saveas:
-		chart.save(state.saveas)
-	state.query = ''
-	corallight_clearparams()
+	if saveas:
+		chart.save(saveas)
+
+def exec_lines(lines):
+	for line in lines:
+		if line[0] == '#':
+			pass
+		elif line[0] == '@':
+			command = line[:-1].split(' ')
+			run_command(command)
+		else:
+			query += line
+
+	exec_query(query)
+
+def expand_lines(lines):
+	params = []
+	for line_num, line in enumerate(lines):
+		no_newline = line[:-1]
+			if no_newline[0] == '@':
+				split_line = no_newline.split(' ')
+				if split_line[0] == '@param':
+					param_name = split_line[1]
+					param_vals = ' '.join(split_line[3:]).split(',')
+					params.append(param_name, param_vals)
+		else:
+			return subvars('\n'.join(lines[line_num + 1:]), params)
+
+def read_chart(lines):
+	chart_lines = []
+	for line in lines:
+		split_line = line.split(';')
+		if len(split_line) == 1:
+			chart_lines.extend(split_line)
+		else:
+			while len(split_line) > 1:
+				chart = chart_lines[:]
+				chart.append(split_line.pop())
+				yield chart
+				chart_lines = []
 
 print_prompt()
-
-for line in sys.stdin:
-	if line[0] == '#':
-		pass
-	elif line[0] == '@':
-		command = line[:-1].split(' ')
-		run_command(command)
-	else:
-		queries = line.split(';')
-		if len(queries) > 1:
-			for query in queries[:-1]:
-				state.query += query
-				exec_qry()
-		else:
-			state.query += queries[0]
-
+for chart in read_chart(sys.stdin):
+	print(expand_lines(chart))
 	print_prompt()
-
 print()
 
