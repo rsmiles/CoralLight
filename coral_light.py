@@ -17,6 +17,9 @@ def subvar(query, var_name, value):
 	return query.replace('$' + var_name, value)
 
 def subvars(query, var_list):
+	if len(var_list) == 0:
+		return [query]
+
 	nvals = len(var_list[0][1])
 
 	for binding in var_list:
@@ -97,9 +100,12 @@ def print_prompt():
 		sys.stdout.write(PROMPT)
 		sys.stdout.flush()
 
-def exec_qry(query, chart, title, ymax, saveas):
+def exec_query(query, chart, title, ymax, saveas):
+	if query == '':
+		return
+
 	chart = agrra.chart(query, chart, title=title, ymax=ymax)
-	if MODE == 'INTERACTIVE':
+	if state.mode == 'INTERACTIVE':
 	    chart.show()
 	else:
 		assert saveas, 'No save file specified when running in non-interactive mode'
@@ -108,28 +114,36 @@ def exec_qry(query, chart, title, ymax, saveas):
 		chart.save(saveas)
 
 def exec_lines(lines):
+	global state
 	for line in lines:
-		if line[0] == '#':
+		if line == '':
+			pass
+		elif line[0] == '#':
 			pass
 		elif line[0] == '@':
-			command = line[:-1].split(' ')
+			command = line.strip().split(' ')
 			run_command(command)
 		else:
-			query += line
+			state.query += line + '\n'
 
-	exec_query(query)
+	exec_query(state.query, state.chart, state.title, state.ymax, state.saveas)
+	state.query = ''
 
 def expand_lines(lines):
 	params = []
-	for line_num, line in enumerate(lines):
-		no_newline = line[:-1]
-		split_line = no_newline.split(' ')
-		if split_line[0] == '@param':
-			param_name = split_line[1]
-			param_vals = ' '.join(split_line[2:]).split(',')
+	new_lines = []
+	for line in lines:
+		stripped = line.strip()
+		stripped_line = stripped.split(' ')
+		if stripped_line[0] == '@param':
+			param_name = stripped_line[1]
+			param_vals = ' '.join(stripped_line[2:]).split(',')
 			params.append((param_name, [x.strip() for x in param_vals]))
 		else:
-			return subvars(''.join(lines[line_num:]), params)
+			new_lines.append(line)
+
+	expanded = subvars(''.join(new_lines), params)
+	return [query.split('\n') for query in expanded]
 
 def read_chart(lines):
 	chart_lines = []
@@ -145,7 +159,8 @@ def read_chart(lines):
 
 print_prompt()
 for chart in read_chart(sys.stdin):
-	print(expand_lines(chart))
+	for query in expand_lines(chart):
+		exec_lines(query)
 	print_prompt()
 print()
 
