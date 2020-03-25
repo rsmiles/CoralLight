@@ -123,14 +123,13 @@ def expand_lines(lines):
 	params = []
 	for line_num, line in enumerate(lines):
 		no_newline = line[:-1]
-			if no_newline[0] == '@':
-				split_line = no_newline.split(' ')
-				if split_line[0] == '@param':
-					param_name = split_line[1]
-					param_vals = ' '.join(split_line[3:]).split(',')
-					params.append(param_name, param_vals)
+		split_line = no_newline.split(' ')
+		if split_line[0] == '@param':
+			param_name = split_line[1]
+			param_vals = ' '.join(split_line[2:]).split(',')
+			params.append((param_name, [x.strip() for x in param_vals]))
 		else:
-			return subvars('\n'.join(lines[line_num + 1:]), params)
+			return subvars(''.join(lines[line_num:]), params)
 
 def read_chart(lines):
 	chart_lines = []
@@ -140,9 +139,8 @@ def read_chart(lines):
 			chart_lines.extend(split_line)
 		else:
 			while len(split_line) > 1:
-				chart = chart_lines[:]
-				chart.append(split_line.pop())
-				yield chart
+				chart_lines.append(split_line.pop(0) + '\n')
+				yield chart_lines[:]
 				chart_lines = []
 
 print_prompt()
