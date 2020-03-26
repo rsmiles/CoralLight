@@ -10,6 +10,9 @@ class CoralLight_State:
 		self.ymax = ''
 		self.chart = 'pie'
 		self.mode = 'INTERACTIVE'
+		self.query_start = 0 # Line the current expression began on
+		self.query_fin = 0 # Line the current expression ended on
+		self.line_num = 0 # The current line for error reporting purposes
 
 state = CoralLight_State()
 
@@ -39,6 +42,8 @@ def subvars(query, var_list):
 
 if '-n' in sys.argv or '--non-interactive' in sys.argv:
 	state.mode = 'NON_INTERACTIVE'
+elif '-d' in sys.argv or '--debug' in sys.argv:
+	state.mode = 'DEBUG'
 
 def corallight_exit():
 	sys.exit()
@@ -136,6 +141,7 @@ def expand_lines(lines):
 		stripped = line.strip()
 		stripped_line = stripped.split(' ')
 		if stripped_line[0] == '@param':
+			assert len(stripped_line) > 2, 'Parameters must have values'
 			param_name = stripped_line[1]
 			param_vals = ' '.join(stripped_line[2:]).split(',')
 			params.append((param_name, [x.strip() for x in param_vals]))
@@ -146,8 +152,11 @@ def expand_lines(lines):
 	return [query.split('\n') for query in expanded]
 
 def read_chart(lines):
+	global state
+	state.query_start = state.query_fin + 1
 	chart_lines = []
 	for line in lines:
+		state.query_fin += 1
 		split_line = line.split(';')
 		if len(split_line) == 1:
 			chart_lines.extend(split_line)
@@ -155,12 +164,37 @@ def read_chart(lines):
 			while len(split_line) > 1:
 				chart_lines.append(split_line.pop(0) + '\n')
 				yield chart_lines[:]
+				state.query_start = state.query_fin + 1
 				chart_lines = []
+		
 
-print_prompt()
-for chart in read_chart(sys.stdin):
+def exec_chart(chart):
 	for query in expand_lines(chart):
 		exec_lines(query)
 	print_prompt()
+
+
+print_prompt()
+for chart in read_chart(sys.stdin):
+	if state.mode == 'INTERACTIVE':
+		try:
+			exec_chart(chart)
+		except Exception as e:
+			print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
+			print_prompt()
+	elif state.mode == 'NON_INTERACTIVE':
+		try:
+			exec_chart(chart)
+		except Exception as e:
+			print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
+			sys.exit(1)
+	elif state.mode == 'DEBUG':
+		try:
+			exec_chart(chart)
+		except Exception as e:
+			print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
+			raise e
+	else:
+		raise Exception('Unkown program mode: ' + state.mode)
 print()
 
