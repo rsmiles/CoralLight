@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import agrra, os, sys
+from PySide2.QtWidgets import QApplication, QLabel
 
 class CoralLight_State:
 	def __init__(self):
@@ -9,7 +10,7 @@ class CoralLight_State:
 		self.saveas = ''
 		self.ymax = ''
 		self.chart = 'pie'
-		self.mode = 'INTERACTIVE'
+		self.mode = 'GUI'
 		self.query_start = 0 # Line the current expression began on
 		self.query_fin = 0 # Line the current expression ended on
 		self.line_num = 0 # The current line for error reporting purposes
@@ -40,6 +41,8 @@ def subvars(query, var_list):
 
 	return results
 
+if '-t' in sys.argv or '--text' in sys.argv:
+	state.mode == 'INTERACTIVE'
 if '-n' in sys.argv or '--non-interactive' in sys.argv:
 	state.mode = 'NON_INTERACTIVE'
 elif '-d' in sys.argv or '--debug' in sys.argv:
@@ -173,28 +176,34 @@ def exec_chart(chart):
 		exec_lines(query)
 	print_prompt()
 
-
-print_prompt()
-for chart in read_chart(sys.stdin):
-	if state.mode == 'INTERACTIVE':
-		try:
-			exec_chart(chart)
-		except Exception as e:
-			print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
-			print_prompt()
-	elif state.mode == 'NON_INTERACTIVE':
-		try:
-			exec_chart(chart)
-		except Exception as e:
-			print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
-			sys.exit(1)
-	elif state.mode == 'DEBUG':
-		try:
-			exec_chart(chart)
-		except Exception as e:
-			print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
-			raise e
+if __name__ == '__main__':
+	if state.mode == 'GUI':
+		app = QApplication(sys.argv)
+		label = QLabel('Hello World')
+		label.show()
+		sys.exit(app.exec_())
 	else:
-		raise Exception('Unkown program mode: ' + state.mode)
-print()
+		print_prompt()
+		for chart in read_chart(sys.stdin):
+			if state.mode == 'INTERACTIVE':
+				try:
+					exec_chart(chart)
+				except Exception as e:
+					print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
+					print_prompt()
+			elif state.mode == 'NON_INTERACTIVE':
+				try:
+					exec_chart(chart)
+				except Exception as e:
+					print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
+					sys.exit(1)
+			elif state.mode == 'DEBUG':
+				try:
+					exec_chart(chart)
+				except Exception as e:
+					print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
+					raise e
+			else:
+				raise Exception('Unkown program mode: ' + state.mode)
+		print()
 
