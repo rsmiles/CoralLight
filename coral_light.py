@@ -25,6 +25,7 @@ if __name__ == '__main__':
 			if state.mode == 'INTERACTIVE':
 				try:
 					exec_chart(chart)
+					print_prompt()
 				except Exception as e:
 					print('Error in query starting at line: ' + str(state.query_start) + ': ' + str(e))
 					print_prompt()

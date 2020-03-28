@@ -48,7 +48,8 @@ def corallight_exit():
 def corallight_opendb(*args):
 	agrra.open_db(' '.join(args))
 
-def corallight_import(xlsx):
+def corallight_import(*args):
+	xlsx = ' '.join(args)
 	agrra.import_xlsx(xlsx)
 
 def corallight_saveas(*args):
@@ -168,4 +169,8 @@ def read_chart(lines):
 def exec_chart(chart):
 	for query in expand_lines(chart):
 		exec_lines(query)
+
+def exec_str(string):
+	for q in read_chart(string):
+		exec_chart(q)
 
