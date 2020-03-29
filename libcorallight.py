@@ -14,7 +14,6 @@ class CoralLight_State:
 		self.mode = 'GUI'
 		self.query_start = 0 # Line the current expression began on
 		self.query_fin = 0 # Line the current expression ended on
-		self.line_num = 0 # The current line for error reporting purposes
 
 state = CoralLight_State()
 

@@ -8,22 +8,30 @@ class MainWindow(QtWidgets.QMainWindow):
 		super(MainWindow, self).__init__()
 		self.initUI()
 
+	def exec_str(self, string):
+		try:
+			exec_str(string)
+		except Exception as e:
+			mesg = str(e)
+			mesgBox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical, 'Error', mesg)
+			mesgBox.exec()
+
 	def newDatabase(self):
 		fname, ftype = QtWidgets.QFileDialog.getSaveFileName()
 		if fname:
-			exec_str('@opendb {0};'.format(fname))
+			self.exec_str('@opendb {0};'.format(fname))
 			self.dbIndicator.setText(agrra.config.DB)
 
 	def openDatabase(self):
 		fname, ftype = QtWidgets.QFileDialog.getOpenFileName()
 		if fname:
-			exec_str('@opendb {0};'.format(fname))
+			self.exec_str('@opendb {0};'.format(fname))
 			self.dbIndicator.setText(agrra.config.DB)
 
 	def importData(self):
 		fnames, ftypes = QtWidgets.QFileDialog.getOpenFileNames(filter='*.xlsx')
 		for fname in fnames:
-			exec_str('@import {0};'.format(fname))
+			self.exec_str('@import {0};'.format(fname))
 
 	def initUI(self):
 		exitAction = QtWidgets.QAction(QtGui.QIcon(''), '&Quit {0}'.format(APP_NAME), self)
@@ -63,5 +71,4 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.setGeometry(300, 300, 640, 480)
 		self.setWindowTitle('{0} ({1})'.format(APP_NAME, APP_VERSION))
 		self.show()
-
 
