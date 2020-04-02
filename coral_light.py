@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 from libcorallight import *
-from gui import *
-from PySide2 import QtWidgets
-import sys
+import gui, sys
 
 def main():
 	if '-t' in sys.argv or '--text' in sys.argv:
@@ -15,8 +13,8 @@ def main():
 
 	if state.mode == 'GUI':
 		app = QtWidgets.QApplication(sys.argv)
-		mainWindow = MainWindow()
-		sys.exit(app.exec_())
+		mainWindow = gui.MainWindow()
+		mainWindow.run()
 	else:
 		if state.mode == 'INTERACTIVE':
 			print_prompt()
