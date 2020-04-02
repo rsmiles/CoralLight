@@ -1,6 +1,15 @@
+from app_info import *
 from libcorallight import *
 import agrra
 from PySide2 import QtWidgets, QtGui
+
+queries = []
+charts = []
+
+def reset():
+	global queries, charts
+	queries = []
+	charts = []
 
 def dataMapNames(datamap):
 	return [datamap[key]['name'] for key in datamap]
@@ -20,14 +29,23 @@ class ChartCreatorWindow(QtWidgets.QWidget):
 		self.varBox = QtWidgets.QComboBox()
 		self.varBox.addItems(varBoxItems)
 
+		self.createChartLabel = QtWidgets.QLabel('')
+		self.createChartButton = QtWidgets.QPushButton('Create Chart', self)
+		self.createChartButton.clicked.connect(self.createChart)
+
 		layout = QtWidgets.QFormLayout()
 		layout.addRow(self.chartTypeLabel, self.chartTypeBox)
 		layout.addRow(self.varLabel, self.varBox)
 
+		layout.addRow(self.createChartLabel, self.createChartButton)
+
 		self.setWindowTitle(APP_NAME + ' Chart Creator')
-		self.setGeometry(300, 300, 640, 480)
+	#	self.setGeometry(300, 300, 640, 480)
 		self.setLayout(layout)
 		self.show()
+
+	def createChart(self):
+		self.close()
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -64,27 +82,27 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.chartCreator = ChartCreatorWindow()
 
 	def initUI(self):
-		exitAction = QtWidgets.QAction(QtGui.QIcon(''), '&Quit {0}'.format(APP_NAME), self)
+		exitAction = QtWidgets.QAction(QtGui.QIcon(''), 'Quit {0}'.format(APP_NAME), self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Quit {0}'.format(APP_NAME))
 		exitAction.triggered.connect(self.close)
 
-		newDatabaseAction = QtWidgets.QAction(QtGui.QIcon(''), '&New Database', self)
+		newDatabaseAction = QtWidgets.QAction(QtGui.QIcon(''), 'New Database', self)
 		newDatabaseAction.setShortcut('Ctrl+Shift+N')
 		newDatabaseAction.setStatusTip('Create a new database')
 		newDatabaseAction.triggered.connect(self.newDatabase)
 	
-		openDatabaseAction = QtWidgets.QAction(QtGui.QIcon(''), '&Open Database', self)
+		openDatabaseAction = QtWidgets.QAction(QtGui.QIcon(''), 'Open Database', self)
 		openDatabaseAction.setShortcut('Ctrl+O')
 		openDatabaseAction.setStatusTip('Open and existing database')
 		openDatabaseAction.triggered.connect(self.openDatabase)
 
-		importDataAction = QtWidgets.QAction(QtGui.QIcon(''), '&Import Data', self)
+		importDataAction = QtWidgets.QAction(QtGui.QIcon(''), 'Import Data', self)
 		importDataAction.setShortcut('Ctrl+I')
 		importDataAction.setStatusTip('Import Excel File')
 		importDataAction.triggered.connect(self.importData)
 
-		newChartAction = QtWidgets.QAction(QtGui.QIcon(''), '&New Chart', self)
+		newChartAction = QtWidgets.QAction(QtGui.QIcon(''), 'New Chart', self)
 		newChartAction.setShortcut('Ctrl+N')
 		newChartAction.setStatusTip('Create a new chart')
 		newChartAction.triggered.connect(self.newChart)
@@ -95,15 +113,15 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.statusBar().addWidget(self.dbIndicator)
 
 		menuBar = self.menuBar()
-		appMenu = menuBar.addMenu('&{0}'.format(APP_NAME))
+		appMenu = menuBar.addMenu('{0}'.format(APP_NAME))
 		appMenu.addAction(exitAction)
 
-		dataMenu = menuBar.addMenu('&Data')
+		dataMenu = menuBar.addMenu('Data')
 		dataMenu.addAction(newDatabaseAction)
 		dataMenu.addAction(openDatabaseAction)
 		dataMenu.addAction(importDataAction)
 
-		chartMenu = menuBar.addMenu('&Chart')
+		chartMenu = menuBar.addMenu('Chart')
 		chartMenu.addAction(newChartAction)
 
 		self.setGeometry(300, 300, 640, 480)
