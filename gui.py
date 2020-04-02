@@ -1,6 +1,33 @@
 from libcorallight import *
+import agrra
 from PySide2 import QtWidgets, QtGui
 
+def dataMapNames(datamap):
+	return [datamap[key]['name'] for key in datamap]
+
+class ChartCreatorWindow(QtWidgets.QWidget):
+	def __init__(self):
+		super().__init__()
+		self.initUI()
+
+	def initUI(self):
+		self.chartTypeLabel = QtWidgets.QLabel('Chart Type')
+		self.chartTypeBox = QtWidgets.QComboBox()
+		self.chartTypeBox.addItems(('Pie', 'Bar'))
+
+		varBoxItems = dataMapNames(agrra.encounter_datamap)
+		self.varLabel = QtWidgets.QLabel('Variable')
+		self.varBox = QtWidgets.QComboBox()
+		self.varBox.addItems(varBoxItems)
+
+		layout = QtWidgets.QFormLayout()
+		layout.addRow(self.chartTypeLabel, self.chartTypeBox)
+		layout.addRow(self.varLabel, self.varBox)
+
+		self.setWindowTitle(APP_NAME + ' Chart Creator')
+		self.setGeometry(300, 300, 640, 480)
+		self.setLayout(layout)
+		self.show()
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -33,6 +60,9 @@ class MainWindow(QtWidgets.QMainWindow):
 		for fname in fnames:
 			self.exec_str('@import {0};'.format(fname))
 
+	def newChart(self):
+		self.chartCreator = ChartCreatorWindow()
+
 	def initUI(self):
 		exitAction = QtWidgets.QAction(QtGui.QIcon(''), '&Quit {0}'.format(APP_NAME), self)
 		exitAction.setShortcut('Ctrl+Q')
@@ -40,7 +70,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		exitAction.triggered.connect(self.close)
 
 		newDatabaseAction = QtWidgets.QAction(QtGui.QIcon(''), '&New Database', self)
-		newDatabaseAction.setShortcut('Ctrl+N')
+		newDatabaseAction.setShortcut('Ctrl+Shift+N')
 		newDatabaseAction.setStatusTip('Create a new database')
 		newDatabaseAction.triggered.connect(self.newDatabase)
 	
@@ -53,6 +83,11 @@ class MainWindow(QtWidgets.QMainWindow):
 		importDataAction.setShortcut('Ctrl+I')
 		importDataAction.setStatusTip('Import Excel File')
 		importDataAction.triggered.connect(self.importData)
+
+		newChartAction = QtWidgets.QAction(QtGui.QIcon(''), '&New Chart', self)
+		newChartAction.setShortcut('Ctrl+N')
+		newChartAction.setStatusTip('Create a new chart')
+		newChartAction.triggered.connect(self.newChart)
 
 		self.dbIndicator = QtWidgets.QLabel(agrra.config.DB)
 
@@ -67,6 +102,9 @@ class MainWindow(QtWidgets.QMainWindow):
 		dataMenu.addAction(newDatabaseAction)
 		dataMenu.addAction(openDatabaseAction)
 		dataMenu.addAction(importDataAction)
+
+		chartMenu = menuBar.addMenu('&Chart')
+		chartMenu.addAction(newChartAction)
 
 		self.setGeometry(300, 300, 640, 480)
 		self.setWindowTitle('{0} ({1})'.format(APP_NAME, APP_VERSION))

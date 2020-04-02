@@ -5,14 +5,14 @@ from gui import *
 from PySide2 import QtWidgets
 import sys
 
-if '-t' in sys.argv or '--text' in sys.argv:
-	state.mode = 'INTERACTIVE'
-if '-n' in sys.argv or '--non-interactive' in sys.argv:
-	state.mode = 'NON_INTERACTIVE'
-elif '-d' in sys.argv or '--debug' in sys.argv:
-	state.mode = 'DEBUG'
+def main():
+	if '-t' in sys.argv or '--text' in sys.argv:
+		state.mode = 'INTERACTIVE'
+	if '-n' in sys.argv or '--non-interactive' in sys.argv:
+		state.mode = 'NON_INTERACTIVE'
+	elif '-d' in sys.argv or '--debug' in sys.argv:
+		state.mode = 'DEBUG'
 
-if __name__ == '__main__':
 	if state.mode == 'GUI':
 		app = QtWidgets.QApplication(sys.argv)
 		mainWindow = MainWindow()
@@ -46,4 +46,7 @@ if __name__ == '__main__':
 			else:
 				raise Exception('Unkown program mode: ' + state.mode)
 		print()
+
+if __name__ == '__main__':
+	main()
 
