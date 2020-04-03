@@ -12,7 +12,6 @@ def main():
 		state.mode = 'DEBUG'
 
 	if state.mode == 'GUI':
-		app = QtWidgets.QApplication(sys.argv)
 		mainWindow = gui.MainWindow()
 		mainWindow.run()
 	else:

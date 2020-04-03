@@ -1,5 +1,4 @@
 import agrra, os, sys
-from PySide2 import QtGui, QtWidgets
 
 class CoralLight_State:
 	def __init__(self):
@@ -105,7 +104,7 @@ def exec_query(query, chart, title, ymax, saveas):
 
 	chart = agrra.chart(query, chart, title=title, ymax=ymax)
 	if state.mode == 'GUI':
-		gui.charts.append(chart)
+		pass
 	elif state.mode == 'INTERACTIVE':
 	    chart.show()
 	else:
@@ -166,7 +165,7 @@ def read_chart(lines):
 
 def exec_chart(chart):
 	if state.mode == 'GUI':
-		gui.queries.append(chart)
+		pass
 
 	for query in expand_lines(chart):
 		exec_lines(query)
