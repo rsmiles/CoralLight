@@ -1,19 +1,22 @@
-import gi, sys
+import tkinter as tk
 
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+queries = []
+charts = []
 
-class MainWindow:
+class MainWindow(tk.Frame):
 	def __init__(self):
-		self.gladefile = 'main.glade'
-		self.builder = Gtk.Builder()
-		self.builder.add_from_file(self.gladefile)
-		self.builder.connect_signals(self)
-		self.main_window = self.builder.get_object('main_window')
-		self.main_window.show()
+		super().__init__()
+		self.pack()
+		self.initUI()
 
-	def exit(self, *args):
-		Gtk.main_quit()
+	def initUI(self):
+		self.hello = tk.Button(self)
+		self.hello['text'] = 'Hello World\n(Click Me)'
+		self.hello['command'] = self.greet
+		self.hello.pack(side='top')
 
+	def greet(*args):
+		print('hello world!')
+	
 	def run(self):
-		Gtk.main()
+		self.mainloop()
