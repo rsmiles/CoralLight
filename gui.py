@@ -51,6 +51,12 @@ class MainWindow():
 		self.controlFrame = tk.Frame(self.root)
 		self.controlFrame.pack(side='top')
 
+		self.chartTitleLabel = tk.Label(self.controlFrame, text='Chart Title')
+		self.chartTitleLabel.pack()
+
+		self.chartTitleField = tk.Entry(self.controlFrame)
+		self.chartTitleField.pack()
+
 		self.chartTypeLabel = tk.Label(self.controlFrame, text='Chart Type')
 		self.chartTypeLabel.pack()
 
