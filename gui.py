@@ -3,7 +3,7 @@ from libcorallight import *
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as tk_messagebox
-import PIL
+from PIL import ImageTk
 import os
 
 def dataMapNames(datamap):
@@ -128,10 +128,9 @@ GROUP BY {2};"""
 		chartTitle = self.chartTitleField.get()
 		chartVar = dataMapField(agrra.encounter_datamap, self.varBox.get())
 		qry = template.format(chartType, chartTitle, chartVar)
-		print(qry)
 		self.exec_str(qry)
-
-		newImg = PIL.ImageTk.PhotoImage(state.export.chart)
-		self.displayLabel.configure(image=newImage)
-		self.displayLabel.image = newImage
+		newImg = ImageTk.PhotoImage(state.export.chart)
+		print('new image created')
+#		self.displayLabel.configure(image=newImg)
+#		self.displayLabel.image = newImg
 
