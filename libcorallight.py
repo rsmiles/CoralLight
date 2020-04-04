@@ -1,5 +1,14 @@
 import agrra, os, sys
 
+# Fields other components (i.e. the GUI) access
+class CoralLight_Export:
+	def __init__(self):
+		self.query = None
+		self.chart = None
+		self.title = None
+		self.ymax = None
+		self.saveas = None
+
 class CoralLight_State:
 	def __init__(self):
 		self.query = ''
@@ -10,6 +19,7 @@ class CoralLight_State:
 		self.mode = 'GUI'
 		self.query_start = 0 # Line the current expression began on
 		self.query_fin = 0 # Line the current expression ended on
+		self.export = CoralLight_Export() # Section other program components access (i.e. GUI)
 
 state = CoralLight_State()
 
@@ -99,12 +109,18 @@ def print_prompt():
 		sys.stdout.flush()
 
 def exec_query(query, chart, title, ymax, saveas):
+	global state
+
 	if query == '':
 		return
 
 	chart = agrra.chart(query, chart, title=title, ymax=ymax)
 	if state.mode == 'GUI':
-		pass
+		state.export.query = query
+		state.export.chart = chart
+		state.export.title = title
+		state.export.ymax = ymax
+		state.export.saveas = saveas
 	elif state.mode == 'INTERACTIVE':
 	    chart.show()
 	else:

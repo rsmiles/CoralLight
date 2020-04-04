@@ -3,10 +3,17 @@ from libcorallight import *
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as tk_messagebox
+import PIL
 import os
 
 def dataMapNames(datamap):
 	return [datamap[key]['name'] for key in datamap.keys()]
+
+def dataMapField(datamap, name):
+	for val in datamap.values():
+		if val['name'] == name:
+			return val['key']
+	return None
 
 class MainWindow():
 	def __init__(self):
@@ -112,4 +119,19 @@ class MainWindow():
 		self.root.mainloop()
 
 	def gen_chart(self):
-		pass
+		template = """@chart {0}
+@title {1}
+SELECT {2}, COUNT(*) FROM data
+GROUP BY {2};"""
+
+		chartType = self.chartTypeBox.get().lower()
+		chartTitle = self.chartTitleField.get()
+		chartVar = dataMapField(agrra.encounter_datamap, self.varBox.get())
+		qry = template.format(chartType, chartTitle, chartVar)
+		print(qry)
+		self.exec_str(qry)
+
+		newImg = PIL.ImageTk.PhotoImage(state.export.chart)
+		self.displayLabel.configure(image=newImage)
+		self.displayLabel.image = newImage
+
