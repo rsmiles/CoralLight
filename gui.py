@@ -50,10 +50,8 @@ class MainWindow():
 
 		self.root.config(menu=self.menuBar)
 
-		# Setup chart generation controls
-
-		self.displayLabel = tk.Label(self.root, width=50, height=25)
-		self.displayLabel.pack(side='left')
+		self.displayLabel = tk.Label(self.root, width=60, height=30)
+		self.displayLabel.pack(side='left', fill='both', expand='yes')
 
 		self.controlFrame = tk.Frame(self.root)
 		self.controlFrame.pack(side='top')
@@ -133,5 +131,6 @@ GROUP BY {2};"""
 		qry = template.format(chartType, chartTitle, chartVar)
 		self.exec_str(qry)
 		newImg = ImageTk.PhotoImage(state.export.chart)
-#		self.displayLabel.configure(image=newImg)
+		self.displayLabel.config(image=newImg)
+		self.displayLabel.image = newImg
 
