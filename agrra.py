@@ -1,6 +1,9 @@
 # agrra.py, by Robert Smiley
 # Library for loading AGRRA coral transects
 
+import matplotlib
+matplotlib.use('Agg')
+
 from openpyxl import load_workbook
 from matplotlib import pyplot
 from matplotlib import font_manager
@@ -10,6 +13,7 @@ from PIL import ImageDraw
 from palettable.tableau import Tableau_20 as pallete_20
 from palettable.tableau import Tableau_10 as pallete_10
 import atexit, config, csv, datetime, io, os, random, sqlite3
+
 
 DATAMAP_PATH = config.APP_PATH + 'datamap/'
 SHEET_DATAMAP = DATAMAP_PATH + 'sheet.csv'
@@ -269,6 +273,6 @@ def chart(qry, chart_type, title='', ymax=None):
 		pyplot.savefig(buff, bbox_inches='tight')
 		img = Image.open(buff)
 
-
 	pyplot.close(fig)
+
 	return img

@@ -111,14 +111,17 @@ class MainWindow():
 	def show_current_database(self, event=None):
 		tk_messagebox.showinfo(title='Current Database', message=agrra.config.DB)
 
-
 	def save_chart(self, event=None):
 		pass
 
 	def run(self):
 		self.root.mainloop()
 
+	def sillytest(self):
+		print('hello world')
+
 	def gen_chart(self):
+		global state
 		template = """@chart {0}
 @title {1}
 SELECT {2}, COUNT(*) FROM data
@@ -130,7 +133,5 @@ GROUP BY {2};"""
 		qry = template.format(chartType, chartTitle, chartVar)
 		self.exec_str(qry)
 		newImg = ImageTk.PhotoImage(state.export.chart)
-		print('new image created')
 #		self.displayLabel.configure(image=newImg)
-#		self.displayLabel.image = newImg
 

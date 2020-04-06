@@ -114,20 +114,20 @@ def exec_query(query, chart, title, ymax, saveas):
 	if query == '':
 		return
 
-	chart = agrra.chart(query, chart, title=title, ymax=ymax)
+	chart_img = agrra.chart(query, chart, title=title, ymax=ymax)
 	if state.mode == 'GUI':
 		state.export.query = query
-		state.export.chart = chart
+		state.export.chart = chart_img
 		state.export.title = title
 		state.export.ymax = ymax
 		state.export.saveas = saveas
 	elif state.mode == 'INTERACTIVE':
-	    chart.show()
+	    chart_img.show()
 	else:
 		assert saveas, 'No save file specified when running in non-interactive mode'
 
 	if saveas:
-		chart.save(saveas)
+		chart_img.save(saveas)
 
 def exec_lines(lines):
 	global state
@@ -180,9 +180,6 @@ def read_chart(lines):
 		
 
 def exec_chart(chart):
-	if state.mode == 'GUI':
-		pass
-
 	for query in expand_lines(chart):
 		exec_lines(query)
 
