@@ -1,6 +1,7 @@
 from app_info import *
 from libcorallight import *
 import tkinter as tk
+import tkinter.filedialog
 from tkinter import ttk
 import tkinter.messagebox as tk_messagebox
 from PIL import ImageTk
