@@ -20,6 +20,7 @@ class MainWindow():
 	def __init__(self):
 		self.root = tk.Tk()
 		self.root.title('{0} ({1})'.format(APP_NAME, APP_VERSION))
+		self.root.geometry('640x480')
 		self.initUI()
 
 	def initUI(self):
@@ -51,7 +52,7 @@ class MainWindow():
 
 		self.root.config(menu=self.menuBar)
 
-		self.displayLabel = tk.Label(self.root, width=60, height=30)
+		self.displayLabel = tk.Label(self.root)
 		self.displayLabel.pack(side='left', fill='both', expand='yes')
 
 		self.controlFrame = tk.Frame(self.root)
@@ -132,6 +133,7 @@ GROUP BY {2};"""
 		qry = template.format(chartType, chartTitle, chartVar)
 		self.exec_str(qry)
 		newImg = ImageTk.PhotoImage(state.export.chart)
+		self.root.geometry('')
 		self.displayLabel.config(image=newImg)
 		self.displayLabel.image = newImg
 
