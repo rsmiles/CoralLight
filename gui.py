@@ -15,6 +15,29 @@ def dataMapField(datamap, name):
 			return val['key']
 	return None
 
+class FieldSelector():
+	def __init__(self, root, categoryText='Category', fieldText='Field'):
+		self.categories = ('Document', 'Sheet', 'Transect', 'Encounter')
+		self.category = None
+		self.root = root
+		self.frame = tk.Frame(self.root)
+		self.categoryLabel = tk.Label(self.frame, text=categoryText)
+		self.categoryBox = ttk.Combobox(self.frame, values=self.categories)
+		self.categoryBox.bind('<<ComboboxSelected>>', self.setCategory)
+		self.fieldLabel = tk.Label(self.frame, text=fieldText)
+		self.fieldBox = ttk.Combobox(self.frame, values=())
+
+		self.categoryLabel.grid(row=0, column=0)
+		self.categoryBox.grid(row=1, column=0)
+		self.fieldLabel.grid(row=0, column=1)
+		self.fieldBox.grid(row=1, column=1)
+
+	def setCategory(self, event):
+		print(event)
+
+	def pack(self, **opts):
+		self.frame.pack(**opts)
+
 class MainWindow():
 	def __init__(self):
 		self.root = tk.Tk()
@@ -69,11 +92,9 @@ class MainWindow():
 		self.chartTypeBox = ttk.Combobox(self.controlFrame, values=('Pie', 'Bar'))
 		self.chartTypeBox.pack()
 
-		self.varLabel = tk.Label(self.controlFrame, text='Variable')
-		self.varLabel.pack()
+		self.varSelector = FieldSelector(self.controlFrame)
+		self.varSelector.pack()
 
-		self.varBox = ttk.Combobox(self.controlFrame, values=(dataMapNames(agrra.encounter_datamap)))
-		self.varBox.pack()
 		self.genButton = tk.Button(self.controlFrame, text='Generate Chart', command=self.gen_chart)
 		self.genButton.pack()
 
