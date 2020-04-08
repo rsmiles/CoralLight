@@ -111,7 +111,11 @@ class MainWindow():
 		tk.messagebox.showinfo(title='Current Database', message=agrra.config.DB)
 
 	def save_chart(self, event=None):
-		pass
+		fileName = tk.filedialog.asksaveasfilename()
+		if not fileName:
+			return
+
+		state.export.chart.save(fileName)
 
 	def run(self):
 		self.root.mainloop()
