@@ -263,7 +263,7 @@ def chart(qry, chart_type, title='', ymax=None):
 		if title != '':
 			pyplot.title(title, {'fontname': 'Liberation Serif', 'fontweight': 'bold'})
 
-		chart_labels = [label +  ' (' + str(data[i]) + ')' for i, label in enumerate(labels)]
+		chart_labels = [str(label) +  ' (' + str(data[i]) + ')' for i, label in enumerate(labels)]
 		pyplot.xticks(range(len(chart_labels)), chart_labels, rotation='vertical')
 
 		if ymax:
