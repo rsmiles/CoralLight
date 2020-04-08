@@ -2,8 +2,7 @@ from app_info import *
 from libcorallight import *
 import tkinter as tk
 import tkinter.filedialog
-from tkinter import ttk
-import tkinter.messagebox as tk_messagebox
+from tkinter import ttk, messagebox, filedialog
 from PIL import ImageTk
 import os
 
@@ -82,7 +81,7 @@ class MainWindow():
 		try:
 			exec_str(string)
 		except Exception as e:
-			tk_messagebox.showerror('Error', str(e))
+			tk.messagebox.showerror('Error', str(e))
 
 	def quit(self, event=None):
 		self.root.destroy()
@@ -109,7 +108,7 @@ class MainWindow():
 			self.exec_str('@import {0};'.format(fileName))
 
 	def show_current_database(self, event=None):
-		tk_messagebox.showinfo(title='Current Database', message=agrra.config.DB)
+		tk.messagebox.showinfo(title='Current Database', message=agrra.config.DB)
 
 	def save_chart(self, event=None):
 		pass
