@@ -4,26 +4,21 @@ import tkinter as tk
 import tkinter.filedialog
 from tkinter import ttk, messagebox, filedialog
 from PIL import ImageTk
+from namemap import *
 import os
 
-def dataMapNames(datamap):
-	return [datamap[key]['name'] for key in datamap.keys()]
+nameMap = NameMap('namemap.csv')
 
-def dataMapField(datamap, name):
-	for val in datamap.values():
-		if val['name'] == name:
-			return val['key']
-	return None
-
-class FieldSelector():
-	def __init__(self, root, categoryText='Category', fieldText='Field'):
-		self.categories = ('Document', 'Sheet', 'Transect', 'Encounter')
+class FieldSelector:
+	def __init__(self, root, nameMap, categoryText='Category', fieldText='Field'):
+		self.nameMap = nameMap
+						
 		self.category = None
 		self.root = root
 		self.frame = tk.Frame(self.root)
 		self.categoryLabel = tk.Label(self.frame, text=categoryText)
-		self.categoryBox = ttk.Combobox(self.frame, values=self.categories)
-		self.categoryBox.bind('<<ComboboxSelected>>', self.setCategory)
+		self.categoryBox = ttk.Combobox(self.frame, values=self.nameMap.getCategories())
+		self.categoryBox.bind('<<ComboboxSelected>>', self.updateCategory)
 		self.fieldLabel = tk.Label(self.frame, text=fieldText)
 		self.fieldBox = ttk.Combobox(self.frame, values=())
 
@@ -32,8 +27,10 @@ class FieldSelector():
 		self.fieldLabel.grid(row=0, column=1)
 		self.fieldBox.grid(row=1, column=1)
 
-	def setCategory(self, event):
-		print(event)
+	def updateCategory(self, event):
+		self.category = self.categoryBox.get()
+		names = self.nameMap.getNames(self.category)
+		self.fieldBox['values'] = names
 
 	def pack(self, **opts):
 		self.frame.pack(**opts)
@@ -92,7 +89,7 @@ class MainWindow():
 		self.chartTypeBox = ttk.Combobox(self.controlFrame, values=('Pie', 'Bar'))
 		self.chartTypeBox.pack()
 
-		self.varSelector = FieldSelector(self.controlFrame)
+		self.varSelector = FieldSelector(self.controlFrame, nameMap)
 		self.varSelector.pack()
 
 		self.genButton = tk.Button(self.controlFrame, text='Generate Chart', command=self.gen_chart)
