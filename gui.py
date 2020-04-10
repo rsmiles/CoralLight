@@ -4,42 +4,116 @@ import tkinter as tk
 import tkinter.filedialog
 from tkinter import ttk, messagebox, filedialog
 from PIL import ImageTk
-from namemap import *
 import os
 
-nameMap = NameMap('namemap.csv')
+PLUGIN_DIR = agrra.config.APP_PATH + 'chart_plugins/'
+TITLE_FONT = 'Helvetica 12 bold'
 
-class FieldSelector:
-	def __init__(self, root, nameMap, categoryText='Category', fieldText='Field'):
-		self.nameMap = nameMap
-						
-		self.category = None
-		self.root = root
-		self.frame = tk.Frame(self.root)
-		self.categoryLabel = tk.Label(self.frame, text=categoryText)
-		self.categoryBox = ttk.Combobox(self.frame, values=self.nameMap.getCategories())
-		self.categoryBox.bind('<<ComboboxSelected>>', self.updateCategory)
-		self.fieldLabel = tk.Label(self.frame, text=fieldText)
-		self.fieldBox = ttk.Combobox(self.frame, values=())
+class ParamEntry:
+	def __init__(self, parent, param):
+		self.parent = parent
+		self.param = param
+		self.initUI()
 
-		self.categoryLabel.grid(row=0, column=0)
-		self.categoryBox.grid(row=1, column=0)
-		self.fieldLabel.grid(row=0, column=1)
-		self.fieldBox.grid(row=1, column=1)
+	def initUI(self):
+		self.root = tk.Frame(self.parent)
 
-	def updateCategory(self, event):
-		self.category = self.categoryBox.get()
-		names = self.nameMap.getNames(self.category)
-		self.fieldBox['values'] = names
+		self.label = tk.Label(self.root, text=self.param, font=TITLE_FONT)
+		self.label.pack()
+
+		self.entries = []
+
+		self.addEntry()
+
+	def addEntry(self):
+		entry = tk.Entry(self.root)
+		entry.pack()
+		self.entries.append(entry)
+
+	def getEntries(self):
+		return [entry.get() for entry in self.entries]
 
 	def pack(self, **opts):
-		self.frame.pack(**opts)
+		self.root.pack(**opts)
 
-class MainWindow():
+class PluginInterface:
+	def __init__(self, parent, name):
+		self.parent = parent
+		self.name = name
+		self.initText()
+		self.initUI()
+
+	def initText(self):
+		self.title = None
+		self.description = ''
+		self.paramList = []
+		self.textList = []
+
+		with open(PLUGIN_DIR + self.name) as plugin:
+			for line in plugin:
+				if line[0] == '#':
+					if not self.title:
+						self.title = line[1:].strip()
+					else:
+						self.description += line[1:].strip()
+				else:
+					if line[0] == '@':
+						splitLine = line.split(' ')
+						if splitLine[0] == '@param':
+							self.paramList.append(line)
+						else:
+							self.textList.append(line)
+					else:
+						self.textList.append(line)
+
+	def initUI(self):
+		self.root = tk.Frame(self.parent)
+
+		self.titleLabel = tk.Label(self.root, text=self.title, font=TITLE_FONT)
+		self.titleLabel.pack()
+
+		self.descriptionLabel = tk.Label(self.root, text=self.description)
+		self.descriptionLabel.pack()
+
+		self.chartTitleLabel = tk.Label(self.root, text='Chart Title', font=TITLE_FONT)
+		self.chartTitleLabel.pack()
+
+		self.chartTitleEntry = tk.Entry(self.root)
+		self.chartTitleEntry.pack()
+
+		self.paramEntries = []
+		for param in self.paramList:
+			entry = ParamEntry(self.root, param.split(' ')[1])
+			entry.pack()
+			self.paramEntries.append(entry)
+
+		self.addEntryButton = tk.Button(self.root, text='+', command=self.addEntry)
+		self.addEntryButton.pack()
+
+		self.genChartButton = tk.Button(text='Generate Chart', command=self.genChart)
+		self.genChartButton.pack()
+
+	def addEntry(self):
+		for entry in self.paramEntries:
+			entry.addEntry()
+
+	def genChart(self):
+		params = []
+
+		for paramEntry in self.paramEntries:
+			param = paramEntry.label.get()
+			values = ','.join([entry.get() for entry in paramEntry.entries])
+			params.append('@' + param + ' ' + values)
+
+	def pack(self, **opts):
+		self.root.pack(**opts)
+
+class MainWindow:
 	def __init__(self):
 		self.root = tk.Tk()
 		self.root.title('{0} ({1})'.format(APP_NAME, APP_VERSION))
-		self.root.geometry('640x480')
+		self.root.geometry('300x300')
+		self.plugins = os.listdir(PLUGIN_DIR)
 		self.initUI()
 
 	def initUI(self):
@@ -72,28 +146,25 @@ class MainWindow():
 		self.root.config(menu=self.menuBar)
 
 		self.displayLabel = tk.Label(self.root)
-		self.displayLabel.pack(side='left', fill='both', expand='yes')
+#		self.displayLabel.pack('left', fill='both', expand='yes')
 
 		self.controlFrame = tk.Frame(self.root)
-		self.controlFrame.pack(side='top')
+		self.controlFrame.pack()
 
-		self.chartTitleLabel = tk.Label(self.controlFrame, text='Chart Title')
-		self.chartTitleLabel.pack()
-
-		self.chartTitleField = tk.Entry(self.controlFrame)
-		self.chartTitleField.pack()
-
-		self.chartTypeLabel = tk.Label(self.controlFrame, text='Chart Type')
+		self.chartTypeLabel = tk.Label(self.controlFrame, text='Chart Type', font=TITLE_FONT)
 		self.chartTypeLabel.pack()
 
-		self.chartTypeBox = ttk.Combobox(self.controlFrame, values=('Pie', 'Bar'))
+		self.chartTypeBox = ttk.Combobox(self.controlFrame, values=self.plugins)
 		self.chartTypeBox.pack()
+		self.chartTypeBox.bind('<<ComboboxSelected>>', self.loadPlugin)
 
-		self.varSelector = FieldSelector(self.controlFrame, nameMap)
-		self.varSelector.pack()
+		self.pluginInterface = None
 
-		self.genButton = tk.Button(self.controlFrame, text='Generate Chart', command=self.gen_chart)
-		self.genButton.pack()
+	def loadPlugin(self, event):
+		self.root.geometry('')
+		plugin = self.chartTypeBox.get()
+		self.pluginInterface = PluginInterface(self.controlFrame, plugin)
+		self.pluginInterface.pack()
 
 	def exec_str(self, string):
 		try:
@@ -137,24 +208,4 @@ class MainWindow():
 
 	def run(self):
 		self.root.mainloop()
-
-	def sillytest(self):
-		print('hello world')
-
-	def gen_chart(self):
-		global state
-		template = """@chart {0}
-@title {1}
-SELECT {2}, COUNT(*) FROM data
-GROUP BY {2};"""
-
-		chartType = self.chartTypeBox.get().lower()
-		chartTitle = self.chartTitleField.get()
-		chartVar = dataMapField(agrra.encounter_datamap, self.varBox.get())
-		qry = template.format(chartType, chartTitle, chartVar)
-		self.exec_str(qry)
-		newImg = ImageTk.PhotoImage(state.export.chart)
-		self.root.geometry('')
-		self.displayLabel.config(image=newImg)
-		self.displayLabel.image = newImg
 

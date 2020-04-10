@@ -1,0 +1,9 @@
+# Genera of Coral Surveyed
+
+# Generate a pie chart of all coral genera at specified sites.
+
+@param Site
+@chart pie
+SELECT genus, COUNT(*)
+FROM data
+WHERE site_name='$Site'
