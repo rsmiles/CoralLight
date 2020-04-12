@@ -9,6 +9,22 @@ import os
 PLUGIN_DIR = agrra.config.APP_PATH + 'chart_plugins/'
 TITLE_FONT = 'Helvetica 12 bold'
 
+def displayFormat(string):
+	noCap = ['the', 'for', 'by']
+	noExt = os.path.splitext(string)[0]
+	wordList = noExt.split('_')
+
+	formatList = []
+	for i, word in enumerate(wordList):
+		if i == 0 or word not in noCap:
+			formatList.append(word[0].upper() + word[1:])
+		else:
+			formatList.append(word)
+
+	displayString = ' '.join(formatList)
+	return displayString
+	
+
 class ParamEntry:
 	def __init__(self, parent, param):
 		self.parent = parent
@@ -113,7 +129,9 @@ class MainWindow:
 		self.root = tk.Tk()
 		self.root.title('{0} ({1})'.format(APP_NAME, APP_VERSION))
 		self.root.geometry('300x300')
-		self.plugins = os.listdir(PLUGIN_DIR)
+		pluginFiles = os.listdir(PLUGIN_DIR)
+		self.plugins = [(plugin, displayFormat(plugin)) for plugin in pluginFiles]
+		print(self.plugins)
 		self.initUI()
 
 	def initUI(self):
@@ -154,16 +172,28 @@ class MainWindow:
 		self.chartTypeLabel = tk.Label(self.controlFrame, text='Chart Type', font=TITLE_FONT)
 		self.chartTypeLabel.pack()
 
-		self.chartTypeBox = ttk.Combobox(self.controlFrame, values=self.plugins)
+		self.chartTypeBox = ttk.Combobox(self.controlFrame, values=[plugin[1] for plugin in self.plugins])
 		self.chartTypeBox.pack()
 		self.chartTypeBox.bind('<<ComboboxSelected>>', self.loadPlugin)
 
 		self.pluginInterface = None
 
+	def getPluginName(self, f):
+		for pluginFile, pluginName in self.plugins:
+			if pluginFile == f:
+				return pluginName
+		return None
+
+	def getPluginFile(self, n):
+		for pluginFile, pluginName in self.plugins:
+			if pluginName == n:
+				return pluginFile
+		return None
+
 	def loadPlugin(self, event):
 		self.root.geometry('')
-		plugin = self.chartTypeBox.get()
-		self.pluginInterface = PluginInterface(self.controlFrame, plugin)
+		pluginFile = self.getPluginFile(self.chartTypeBox.get())
+		self.pluginInterface = PluginInterface(self.controlFrame, pluginFile)
 		self.pluginInterface.pack()
 
 	def exec_str(self, string):
