@@ -26,31 +26,31 @@ def displayFormat(string):
 	
 
 class ParamEntry:
-	def __init__(self, parent, param):
+	def __init__(self, parent, name):
 		self.parent = parent
-		self.param = param
 		self.initUI()
+
+	def initUI(self):
+		self.root = tk.frame(self.parent)
+
+	def pack(self, **opts):
+		self.root.pack(**opts)
+
+class ChartEntry:
+	def __init__(self, parent, params, number):
+		self.parent = parent
+		self.number = number
+		self.params = params
 
 	def initUI(self):
 		self.root = tk.Frame(self.parent)
 
-		self.label = tk.Label(self.root, text=self.param, font=TITLE_FONT)
-		self.label.pack()
-
 		self.entries = []
-
-		self.addEntry()
-
-	def addEntry(self):
-		entry = tk.Entry(self.root)
-		entry.pack()
-		self.entries.append(entry)
-
-	def getEntries(self):
-		return [entry.get() for entry in self.entries]
+		for param in self.params:
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
+	
 
 class PluginInterface:
 	def __init__(self, parent, name):
@@ -76,7 +76,7 @@ class PluginInterface:
 					if line[0] == '@':
 						splitLine = line.split(' ')
 						if splitLine[0] == '@param':
-							self.paramList.append(line)
+							self.paramList.append(line[1])
 						else:
 							self.textList.append(line)
 					else:
@@ -97,29 +97,17 @@ class PluginInterface:
 		self.chartTitleEntry = tk.Entry(self.root)
 		self.chartTitleEntry.pack()
 
-		self.paramEntries = []
-		for param in self.paramList:
-			entry = ParamEntry(self.root, param.split(' ')[1])
-			entry.pack()
-			self.paramEntries.append(entry)
+		self.addChartButton = tk.Button(self.root, text='+', command=self.addChart)
+		self.addChartButton.pack()
 
-		self.addEntryButton = tk.Button(self.root, text='+', command=self.addEntry)
-		self.addEntryButton.pack()
-
-		self.genChartButton = tk.Button(text='Generate Chart', command=self.genChart)
+		self.genChartButton = tk.Button(text='Generate Charts', command=self.genChart)
 		self.genChartButton.pack()
 
-	def addEntry(self):
-		for entry in self.paramEntries:
-			entry.addEntry()
+	def addChart(self):
+		pass
 
 	def genChart(self):
-		params = []
-
-		for paramEntry in self.paramEntries:
-			param = paramEntry.label.get()
-			values = ','.join([entry.get() for entry in paramEntry.entries])
-			params.append('@' + param + ' ' + values)
+		pass
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
