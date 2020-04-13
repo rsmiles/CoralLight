@@ -154,7 +154,7 @@ def expand_lines(lines):
 		if stripped_line[0] == '@param':
 			assert len(stripped_line) > 2, 'Parameters must have values'
 			param_name = stripped_line[1]
-			param_vals = ' '.join(stripped_line[2:]).split(',')
+			param_vals = ' '.join(stripped_line[2:]).split('|')
 			params.append((param_name, [x.strip() for x in param_vals]))
 		else:
 			new_lines.append(line)
