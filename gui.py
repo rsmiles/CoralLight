@@ -26,12 +26,32 @@ def displayFormat(string):
 	
 
 class ParamEntry:
-	def __init__(self, parent, name):
+	def __init__(self, parent, param):
 		self.parent = parent
+		self.param = param
 		self.initUI()
 
 	def initUI(self):
-		self.root = tk.frame(self.parent)
+		self.root = tk.Frame(self.parent)
+
+		self.label = tk.Label(self.root, text=displayFormat(self.param))
+		self.label.pack()
+
+		self.addButton = tk.Button(self.root, text='+', command=self.addEntry)
+		self.addButton.pack()
+
+		self.entries = []
+		self.addEntry()
+
+	def addEntry(self, event=None):
+		self.addButton.pack_forget()
+		entry = tk.Entry(self.root)
+		self.entries.append(entry)
+		entry.pack()
+		self.addButton.pack()
+
+	def get(self):
+		return "'" + "', '".join([entry.get() for entry in entries]) + "'"
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -41,12 +61,25 @@ class ChartEntry:
 		self.parent = parent
 		self.number = number
 		self.params = params
+		self.initUI()
 
 	def initUI(self):
 		self.root = tk.Frame(self.parent)
 
+		self.label = tk.Label(self.root, text='Chart ' + str(self.number), font=TITLE_FONT)
+		self.label.pack()
+
+		self.titleLabel = tk.Label(self.root, text='Title')
+		self.titleLabel.pack()
+
+		self.titleEntry = tk.Entry(self.root)
+		self.titleEntry.pack()
+
 		self.entries = []
 		for param in self.params:
+			entry = ParamEntry(self.root, param)
+			self.entries.append(entry)
+			entry.pack()
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -62,8 +95,9 @@ class PluginInterface:
 	def initText(self):
 		self.title = None
 		self.description = ''
-		self.paramList = []
+		self.params =[]
 		self.textList = []
+		self.numCharts = 0
 
 		with open(PLUGIN_DIR + self.name) as plugin:
 			for line in plugin:
@@ -76,7 +110,7 @@ class PluginInterface:
 					if line[0] == '@':
 						splitLine = line.split(' ')
 						if splitLine[0] == '@param':
-							self.paramList.append(line[1])
+							self.params.append(line[1])
 						else:
 							self.textList.append(line)
 					else:
@@ -91,23 +125,26 @@ class PluginInterface:
 		self.descriptionLabel = tk.Label(self.root, text=self.description)
 		self.descriptionLabel.pack()
 
-		self.chartTitleLabel = tk.Label(self.root, text='Chart Title', font=TITLE_FONT)
-		self.chartTitleLabel.pack()
+		self.charts = []
 
-		self.chartTitleEntry = tk.Entry(self.root)
-		self.chartTitleEntry.pack()
-
-		self.addChartButton = tk.Button(self.root, text='+', command=self.addChart)
-		self.addChartButton.pack()
+		self.addButton = tk.Button(self.root, text='Add Chart', command=self.addChart)
+		self.addButton.pack()
+	
+		self.addChart()
 
 		self.genChartButton = tk.Button(text='Generate Charts', command=self.genChart)
 		self.genChartButton.pack()
 
 	def addChart(self):
-		pass
+		self.addButton.pack_forget()
+		self.numCharts += 1
+		chart = ChartEntry(self.root, self.params, self.numCharts)
+		self.charts.append(chart)
+		chart.pack()
+		self.addButton.pack()
 
 	def genChart(self):
-		pass
+		print('gen chart!')
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -119,7 +156,6 @@ class MainWindow:
 		self.root.geometry('300x300')
 		pluginFiles = os.listdir(PLUGIN_DIR)
 		self.plugins = [(plugin, displayFormat(plugin)) for plugin in pluginFiles]
-		print(self.plugins)
 		self.initUI()
 
 	def initUI(self):
