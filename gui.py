@@ -137,9 +137,6 @@ class PluginInterface:
 	
 		self.addChart()
 
-		self.genChartButton = tk.Button(text='Generate Charts', command=self.genChart)
-		self.genChartButton.pack()
-
 	def addChart(self):
 		self.addButton.pack_forget()
 		self.numCharts += 1
@@ -163,7 +160,6 @@ class PluginInterface:
 		for param in params:
 			params[param] = params[param][:-1]
 
-		print(params)
 		qry = ''
 		for param in params:
 			qry += '@param {0} {1}\n'.format(param, params[param])
@@ -173,11 +169,11 @@ class PluginInterface:
 
 		return qry
 
-	def genChart(self):
-		print(self.getQuery())
-
 	def pack(self, **opts):
 		self.root.pack(**opts)
+
+	def pack_forget(self):
+		self.root.pack_forget()
 
 class MainWindow:
 	def __init__(self):
@@ -218,6 +214,7 @@ class MainWindow:
 		self.root.config(menu=self.menuBar)
 
 		self.displayLabel = tk.Label(self.root)
+		self.displayLabelPacked = False
 #		self.displayLabel.pack('left', fill='both', expand='yes')
 
 		self.controlFrame = tk.Frame(self.root)
@@ -231,6 +228,7 @@ class MainWindow:
 		self.chartTypeBox.bind('<<ComboboxSelected>>', self.loadPlugin)
 
 		self.pluginInterface = None
+		self.genChartsButton = tk.Button(self.controlFrame, text='Generate Charts', command=self.genCharts)
 
 	def getPluginName(self, f):
 		for pluginFile, pluginName in self.plugins:
@@ -247,8 +245,15 @@ class MainWindow:
 	def loadPlugin(self, event):
 		self.root.geometry('')
 		pluginFile = self.getPluginFile(self.chartTypeBox.get())
+		if self.pluginInterface:
+			self.pluginInterface.pack_forget()
+			self.genChartsButton.pack_forget()
 		self.pluginInterface = PluginInterface(self.controlFrame, pluginFile)
 		self.pluginInterface.pack()
+		self.genChartsButton.pack()
+
+	def genCharts(self):
+		print('generate charts!')
 
 	def exec_str(self, string):
 		try:
