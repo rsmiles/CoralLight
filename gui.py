@@ -51,7 +51,7 @@ class ParamEntry:
 		self.addButton.pack()
 
 	def get(self):
-		return "'" + "', '".join([entry.get() for entry in entries]) + "'"
+		return "('" + "', '".join([entry.get() for entry in entries]) + "')"
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -110,7 +110,7 @@ class PluginInterface:
 					if line[0] == '@':
 						splitLine = line.split(' ')
 						if splitLine[0] == '@param':
-							self.params.append(line[1])
+							self.params.append(splitLine[1])
 						else:
 							self.textList.append(line)
 					else:

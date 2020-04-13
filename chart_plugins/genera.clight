@@ -2,8 +2,8 @@
 
 # Generate a pie chart of all coral genera at specified sites.
 
-@param Site
+@param site
 @chart pie
 SELECT genus, COUNT(*)
 FROM data
-WHERE site_name='$Site'
+WHERE site_name IN $site
