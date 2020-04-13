@@ -51,7 +51,7 @@ class ParamEntry:
 		self.addButton.pack()
 
 	def get(self):
-		return "('" + "', '".join([entry.get() for entry in entries]) + "')"
+		return "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -81,9 +81,14 @@ class ChartEntry:
 			self.entries.append(entry)
 			entry.pack()
 
+	def getEntries(self):
+		return [(entry.param, entry.get()) for entry in self.entries]
+
+	def getTitle(self):
+		return self.titleEntry.get()
+
 	def pack(self, **opts):
 		self.root.pack(**opts)
-	
 
 class PluginInterface:
 	def __init__(self, parent, name):
@@ -96,7 +101,7 @@ class PluginInterface:
 		self.title = None
 		self.description = ''
 		self.params =[]
-		self.textList = []
+		self.text = ''
 		self.numCharts = 0
 
 		with open(PLUGIN_DIR + self.name) as plugin:
@@ -110,11 +115,11 @@ class PluginInterface:
 					if line[0] == '@':
 						splitLine = line.split(' ')
 						if splitLine[0] == '@param':
-							self.params.append(splitLine[1])
+							self.params.append(splitLine[1].strip())
 						else:
-							self.textList.append(line)
+							self.text += line
 					else:
-						self.textList.append(line)
+						self.text += line
 
 	def initUI(self):
 		self.root = tk.Frame(self.parent)
@@ -143,8 +148,33 @@ class PluginInterface:
 		chart.pack()
 		self.addButton.pack()
 
+	def getQuery(self):
+		params = {}
+		for param in self.params:
+			params[param] = ''
+		params['title'] = ''
+
+		for chart in self.charts:
+			for param, value in chart.getEntries():
+				params[param] += value + '|'
+			params['title'] = chart.getTitle() + '|'
+
+		# remove final pipe symbol from each row
+		for param in params:
+			params[param] = params[param][:-1]
+
+		print(params)
+		qry = ''
+		for param in params:
+			qry += '@param {0} {1}\n'.format(param, params[param])
+
+		qry += '@title $title\n'
+		qry += self.text
+
+		return qry
+
 	def genChart(self):
-		print('gen chart!')
+		print(self.getQuery())
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
