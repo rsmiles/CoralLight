@@ -159,7 +159,7 @@ def expand_lines(lines):
 		else:
 			new_lines.append(line)
 
-	expanded = subvars(''.join(new_lines), params)
+	expanded = subvars('\n'.join(new_lines), params)
 	return [query.split('\n') for query in expanded]
 
 def read_chart(lines):
@@ -184,6 +184,6 @@ def exec_chart(chart):
 		exec_lines(query)
 
 def exec_str(string):
-	for q in read_chart(string):
+	for q in read_chart(string.split('\n')):
 		exec_chart(q)
 

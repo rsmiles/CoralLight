@@ -2,6 +2,7 @@ from app_info import *
 from libcorallight import *
 import tkinter as tk
 import tkinter.filedialog
+import traceback
 from tkinter import ttk, messagebox, filedialog
 from PIL import ImageTk
 import os
@@ -51,7 +52,8 @@ class ParamEntry:
 		self.addButton.pack()
 
 	def get(self):
-		return "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
+		string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
+		return string
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -120,6 +122,7 @@ class PluginInterface:
 							self.text += line
 					else:
 						self.text += line
+			self.text += ';'
 
 	def initUI(self):
 		self.root = tk.Frame(self.parent)
@@ -213,9 +216,9 @@ class MainWindow:
 
 		self.root.config(menu=self.menuBar)
 
-		self.displayLabel = tk.Label(self.root)
-		self.displayLabelPacked = False
-#		self.displayLabel.pack('left', fill='both', expand='yes')
+		self.displayLabel = None
+#		self.displayLabel = tk.Label(self.root)
+#		self.displayLabel.pack(side='left', fill='both', expand='yes')
 
 		self.controlFrame = tk.Frame(self.root)
 		self.controlFrame.pack()
@@ -253,12 +256,23 @@ class MainWindow:
 		self.genChartsButton.pack()
 
 	def genCharts(self):
-		print('generate charts!')
+		global state
+		qry = self.pluginInterface.getQuery()
+		self.exec_str(qry)
+		if not self.displayLabel:
+			self.controlFrame.pack_forget()
+			self.displayLabel = tk.Label(self.root)
+			self.controlFrame.pack(side='left')
+			self.displayLabel.pack(side='left')
+		img = ImageTk.PhotoImage(state.export.chart)
+		self.displayLabel.configure(image=img)
+		self.displayLabel.image = img
 
 	def exec_str(self, string):
 		try:
 			exec_str(string)
 		except Exception as e:
+			print(traceback.format_exc())
 			tk.messagebox.showerror('Error', str(e))
 
 	def quit(self, event=None):
