@@ -267,7 +267,8 @@ class MainWindow:
 		self.menuBar.add_cascade(label='Data', menu=self.dataMenu)
 
 		self.chartMenu = tk.Menu(self.menuBar, tearoff=False)
-		self.chartMenu.add_command(label='Save Current', command=self.saveCurrent, accelerator='Ctrl+S')
+		self.chartMenu.add_command(label='Save Current', command=self.saveCurrentChart, accelerator='Ctrl+S')
+		self.chartMenu.add_command(label='Save All', command=self.saveAllCharts, accelerator='Ctrl+Shift+S')
 		self.menuBar.add_cascade(label='Chart', menu=self.chartMenu)
 
 		# Setup keyboard shortcuts
@@ -278,6 +279,8 @@ class MainWindow:
 		self.root.bind('<Control-o>', self.openDatabase)
 		self.root.bind('<Control-i>', self.importData)
 		self.root.bind('<Control-d>', self.showCurrentDatabase)
+		self.root.bind('<Control-s>', self.saveCurrentChart)
+		self.root.bind('<Control-Shift-S>', self.saveAllCharts)
 
 		self.root.config(menu=self.menuBar)
 
@@ -363,12 +366,24 @@ class MainWindow:
 	def showCurrentDatabase(self, event=None):
 		tk.messagebox.showinfo(title='Current Database', message=agrra.config.DB)
 
-	def saveCurrent(self, event=None):
+	def saveCurrentChart(self, event=None):
+		global state
 		fileName = tk.filedialog.asksaveasfilename()
 		if not fileName:
 			return
 
-		state.export.chart.save(fileName)
+		state.export.charts[self.chartBrowser.index].save(fileName)
+
+	def saveAllCharts(self, event=None):
+		global state
+		dirName = tk.filedialog.asksaveasfilename()
+		if not dirName:
+			return
+
+		os.mkdir(dirName)
+
+		for index, chart in enumerate(state.export.charts):
+			chart.save(dirName + '/' + str(index + 1) + '.png')
 
 	def run(self):
 		self.root.mainloop()
