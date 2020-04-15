@@ -197,14 +197,14 @@ class ChartBrowser:
 		self.leftButton = tk.Button(self.controlFrame, text='<', command=self.left)
 		self.leftButton.pack(side='left')
 
+		self.rightButton = tk.Button(self.controlFrame, text='>', command=self.right)
+		self.rightButton.pack(side='left')
+	
 		self.indexEntry = tk.Entry(self.controlFrame, width=2, text=str(self.index))
 		self.indexEntry.pack(side='left')
 
 		self.goButton = tk.Button(self.controlFrame, text='Go', command=self.go)
 		self.goButton.pack(side='left')
-
-		self.rightButton = tk.Button(self.controlFrame, text='>', command=self.right)
-		self.rightButton.pack(side='left')
 
 	def setIndex(self, index):
 		assert index > 0, 'Cannot view before first chart'
