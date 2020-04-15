@@ -178,6 +178,58 @@ class PluginInterface:
 	def pack_forget(self):
 		self.root.pack_forget()
 
+class ChartBrowser:
+	def __init__(self, parent):
+		self.parent = parent
+		self.charts = None
+		self.index = None
+		self.initUI()
+
+	def initUI(self):
+		self.root = tk.Frame(self.parent)
+
+		self.display = tk.Label(self.root)
+		self.display.pack()
+
+		self.controlFrame = tk.Frame(self.root)
+		self.controlFrame.pack()
+
+		self.leftButton = tk.Button(self.controlFrame, text='<', command=self.left)
+		self.leftButton.pack(side='left')
+
+		self.indexEntry = tk.Entry(self.controlFrame, width=2, text=str(self.index))
+		self.indexEntry.pack(side='left')
+
+		self.goButton = tk.Button(self.controlFrame, text='Go', command=self.go)
+		self.goButton.pack(side='left')
+
+		self.rightButton = tk.Button(self.controlFrame, text='>', command=self.right)
+		self.rightButton.pack(side='left')
+
+	def setIndex(self, index):
+		assert index > 0, 'Cannot view before first chart'
+		assert index < len(self.charts), 'Cannot view after last chart'
+		self.index = index
+		self.display.configure(image=self.charts[self.index])
+
+	def setCharts(self, charts):
+		self.charts = [ImageTk.PhotoImage(chart) for chart in charts]
+		self.setIndex(0)
+
+	def left(self):
+		self.setIndex(self.index - 1)
+
+	def right(self):
+		self.setIndex(self.index + 1)
+
+	def go(self):
+		index = self.indexEntry.get()
+		assert index, 'Only integers accepted'
+		self.setIndex(index)
+
+	def pack(self, **args):
+		self.root.pack(**args)
+
 class MainWindow:
 	def __init__(self):
 		self.root = tk.Tk()
@@ -216,9 +268,7 @@ class MainWindow:
 
 		self.root.config(menu=self.menuBar)
 
-		self.displayLabel = None
-#		self.displayLabel = tk.Label(self.root)
-#		self.displayLabel.pack(side='left', fill='both', expand='yes')
+		self.chartBrowser = None
 
 		self.controlFrame = tk.Frame(self.root)
 		self.controlFrame.pack()
@@ -259,14 +309,12 @@ class MainWindow:
 		global state
 		qry = self.pluginInterface.getQuery()
 		self.exec_str(qry)
-		if not self.displayLabel:
+		if not self.chartBrowser:
 			self.controlFrame.pack_forget()
-			self.displayLabel = tk.Label(self.root)
+			self.chartBrowser = ChartBrowser(self.root)
 			self.controlFrame.pack(side='left')
-			self.displayLabel.pack(side='left')
-		img = ImageTk.PhotoImage(state.export.chart)
-		self.displayLabel.configure(image=img)
-		self.displayLabel.image = img
+			self.chartBrowser.pack(side='left')
+		self.chartBrowser.setCharts(state.export.charts)
 
 	def exec_str(self, string):
 		try:

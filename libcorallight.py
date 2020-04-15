@@ -4,7 +4,7 @@ import agrra, os, sys
 class CoralLight_Export:
 	def __init__(self):
 		self.query = None
-		self.chart = None
+		self.charts = None
 		self.title = None
 		self.ymax = None
 		self.saveas = None
@@ -117,7 +117,7 @@ def exec_query(query, chart, title, ymax, saveas):
 	chart_img = agrra.chart(query, chart, title=title, ymax=ymax)
 	if state.mode == 'GUI':
 		state.export.query = query
-		state.export.chart = chart_img
+		state.export.charts.append(chart_img)
 		state.export.title = title
 		state.export.ymax = ymax
 		state.export.saveas = saveas
@@ -184,6 +184,8 @@ def exec_chart(chart):
 		exec_lines(query)
 
 def exec_str(string):
+	global state
+	state.export.charts = []
 	for q in read_chart(string.split('\n')):
 		exec_chart(q)
 
