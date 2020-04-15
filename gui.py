@@ -287,17 +287,30 @@ class MainWindow:
 		self.chartBrowser = None
 
 		self.controlFrame = tk.Frame(self.root)
-		self.controlFrame.pack()
+		self.controlCanvas = tk.Canvas(self.controlFrame)
+		self.controlWindow = tk.Frame(self.controlCanvas)
+		self.scrollbar = tk.Scrollbar(self.controlFrame, orient='vertical', command=self.controlCanvas.yview)
+		self.controlCanvas.configure(yscrollcommand=self.scrollbar.set)
 
-		self.chartTypeLabel = tk.Label(self.controlFrame, text='Chart Type', font=TITLE_FONT)
+		self.controlFrame.pack(fill='both', expand=True)
+		self.controlCanvas.pack(side='left', fill='both', expand=True)
+		self.controlCanvas.create_window((4, 4), window=self.controlWindow, anchor='nw', tags='self.controlWindow')
+
+		self.controlWindow.bind('<Configure>', self.controlFrameConfigure)
+
+		self.chartTypeLabel = tk.Label(self.controlWindow, text='Chart Type', font=TITLE_FONT)
 		self.chartTypeLabel.pack()
 
-		self.chartTypeBox = ttk.Combobox(self.controlFrame, values=[plugin[1] for plugin in self.plugins])
+		self.chartTypeBox = ttk.Combobox(self.controlWindow, values=[plugin[1] for plugin in self.plugins])
 		self.chartTypeBox.pack()
 		self.chartTypeBox.bind('<<ComboboxSelected>>', self.loadPlugin)
+		self.scrollbar.pack(side='right', fill='y')
 
 		self.pluginInterface = None
-		self.genChartsButton = tk.Button(self.controlFrame, text='Generate Charts', command=self.genCharts)
+		self.genChartsButton = tk.Button(self.controlWindow, text='Generate Charts', command=self.genCharts)
+
+	def controlFrameConfigure(self, event):
+		self.controlCanvas.configure(scrollregion=self.controlCanvas.bbox('all'))
 
 	def getPluginName(self, f):
 		for pluginFile, pluginName in self.plugins:
@@ -317,7 +330,7 @@ class MainWindow:
 		if self.pluginInterface:
 			self.pluginInterface.pack_forget()
 			self.genChartsButton.pack_forget()
-		self.pluginInterface = PluginInterface(self.controlFrame, pluginFile)
+		self.pluginInterface = PluginInterface(self.controlWindow, pluginFile)
 		self.pluginInterface.pack()
 		self.genChartsButton.pack()
 
@@ -328,8 +341,8 @@ class MainWindow:
 		if not self.chartBrowser:
 			self.controlFrame.pack_forget()
 			self.chartBrowser = ChartBrowser(self.root)
-			self.controlFrame.pack(side='left')
-			self.chartBrowser.pack(side='left')
+			self.controlFrame.pack(side='left', fill='both', expand=True)
+			self.chartBrowser.pack(side='left', fill='both', expand=True)
 		self.chartBrowser.setCharts(state.export.charts)
 
 	def execStr(self, string):
