@@ -6,5 +6,5 @@
 @chart pie
 SELECT genus, COUNT(*)
 FROM data
-WHERE site_name IN $site
+WHERE TRIM(site_name) IN $site
 GROUP BY genus;

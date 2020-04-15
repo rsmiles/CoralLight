@@ -157,11 +157,13 @@ class PluginInterface:
 		for chart in self.charts:
 			for param, value in chart.getEntries():
 				params[param] += value + '|'
-			params['title'] = chart.getTitle() + '|'
+			params['title'] += chart.getTitle() + '|'
 
 		# remove final pipe symbol from each row
 		for param in params:
 			params[param] = params[param][:-1]
+
+		print(params['title'])
 
 		qry = ''
 		for param in params:
@@ -210,6 +212,8 @@ class ChartBrowser:
 		assert index >= 0, 'Cannot view before first chart'
 		assert index < len(self.charts), 'Cannot view after last chart'
 		self.index = index
+		self.indexEntry.delete(0, tk.END)
+		self.indexEntry.insert(0, str(index + 1))
 		self.display.configure(image=self.charts[self.index])
 
 	def setCharts(self, charts):
@@ -223,9 +227,9 @@ class ChartBrowser:
 		self.setIndex(self.index + 1)
 
 	def go(self):
-		index = self.indexEntry.get()
+		index = int(self.indexEntry.get())
 		assert index, 'Only integers accepted'
-		self.setIndex(index)
+		self.setIndex(index - 1)
 
 	def pack(self, **args):
 		self.root.pack(**args)
