@@ -163,8 +163,6 @@ class PluginInterface:
 		for param in params:
 			params[param] = params[param][:-1]
 
-		print(params['title'])
-
 		qry = ''
 		for param in params:
 			qry += '@param {0} {1}\n'.format(param, params[param])
@@ -209,12 +207,16 @@ class ChartBrowser:
 		self.goButton.pack(side='left')
 
 	def setIndex(self, index):
-		assert index >= 0, 'Cannot view before first chart'
-		assert index < len(self.charts), 'Cannot view after last chart'
-		self.index = index
-		self.indexEntry.delete(0, tk.END)
-		self.indexEntry.insert(0, str(index + 1))
-		self.display.configure(image=self.charts[self.index])
+		try:
+			assert index >= 0, 'Cannot view before first chart'
+			assert index < len(self.charts), 'Cannot view after last chart'
+			self.index = index
+			self.indexEntry.delete(0, tk.END)
+			self.indexEntry.insert(0, str(index + 1))
+			self.display.configure(image=self.charts[self.index])
+		except Exception as e:
+			print(traceback.format_exc())
+			tk.messagebox.showerror('Error', str(e))
 
 	def setCharts(self, charts):
 		self.charts = [ImageTk.PhotoImage(chart) for chart in charts]
@@ -227,9 +229,16 @@ class ChartBrowser:
 		self.setIndex(self.index + 1)
 
 	def go(self):
-		index = int(self.indexEntry.get())
-		assert index, 'Only integers accepted'
+		index = None 
+		try:
+			index = int(self.indexEntry.get())
+		except Exception as e:
+			print(traceback.format_exc())
+			tk.messagebox.showerror('Error', 'Only integers accepted')
+			return
+
 		self.setIndex(index - 1)
+			
 
 	def pack(self, **args):
 		self.root.pack(**args)
@@ -251,24 +260,24 @@ class MainWindow:
 		self.menuBar.add_cascade(label=APP_NAME, menu=self.coralLightMenu)
 
 		self.dataMenu = tk.Menu(self.menuBar, tearoff=False)
-		self.dataMenu.add_command(label='New Database', command=self.new_database, accelerator='Ctrl+N')
-		self.dataMenu.add_command(label='Open Database', command=self.open_database, accelerator='Ctrl+O')
-		self.dataMenu.add_command(label='Import Data', command=self.import_data, accelerator='Ctrl+I')
-		self.dataMenu.add_command(label='Show Current Database', command=self.show_current_database, accelerator='Ctrl+D')
+		self.dataMenu.add_command(label='New Database', command=self.newDatabase, accelerator='Ctrl+N')
+		self.dataMenu.add_command(label='Open Database', command=self.openDatabase, accelerator='Ctrl+O')
+		self.dataMenu.add_command(label='Import Data', command=self.importData, accelerator='Ctrl+I')
+		self.dataMenu.add_command(label='Show Current Database', command=self.showCurrentDatabase, accelerator='Ctrl+D')
 		self.menuBar.add_cascade(label='Data', menu=self.dataMenu)
 
 		self.chartMenu = tk.Menu(self.menuBar, tearoff=False)
-		self.chartMenu.add_command(label='Save Chart', command=self.save_chart, accelerator='Ctrl+S')
+		self.chartMenu.add_command(label='Save Current', command=self.saveCurrent, accelerator='Ctrl+S')
 		self.menuBar.add_cascade(label='Chart', menu=self.chartMenu)
 
 		# Setup keyboard shortcuts
 		self.root.bind_all('<Control-q>', self.quit)
 
 		self.root.bind('<Control-w>', self.quit)
-		self.root.bind('<Control-n>', self.new_database)
-		self.root.bind('<Control-o>', self.open_database)
-		self.root.bind('<Control-i>', self.import_data)
-		self.root.bind('<Control-d>', self.show_current_database)
+		self.root.bind('<Control-n>', self.newDatabase)
+		self.root.bind('<Control-o>', self.openDatabase)
+		self.root.bind('<Control-i>', self.importData)
+		self.root.bind('<Control-d>', self.showCurrentDatabase)
 
 		self.root.config(menu=self.menuBar)
 
@@ -312,7 +321,7 @@ class MainWindow:
 	def genCharts(self):
 		global state
 		qry = self.pluginInterface.getQuery()
-		self.exec_str(qry)
+		self.execStr(qry)
 		if not self.chartBrowser:
 			self.controlFrame.pack_forget()
 			self.chartBrowser = ChartBrowser(self.root)
@@ -320,7 +329,7 @@ class MainWindow:
 			self.chartBrowser.pack(side='left')
 		self.chartBrowser.setCharts(state.export.charts)
 
-	def exec_str(self, string):
+	def execStr(self, string):
 		try:
 			exec_str(string)
 		except Exception as e:
@@ -330,31 +339,31 @@ class MainWindow:
 	def quit(self, event=None):
 		self.root.destroy()
 
-	def new_database(self, event=None):
+	def newDatabase(self, event=None):
 		fileName = tk.filedialog.asksaveasfilename()
 		if not fileName:
 			return
 
 		elif os.path.isfile(fileName):
 			os.remove(filename)
-		self.exec_str('@opendb {0};'.format(fileName))
+		self.execStr('@opendb {0};'.format(fileName))
 
-	def open_database(self, event=None):
+	def openDatabase(self, event=None):
 		fileName = tk.filedialog.askopenfilename()
 		if not fileName:
 			return
 
-		self.exec_str('@opendb {0};'.format(fileName))
+		self.execStr('@opendb {0};'.format(fileName))
 
-	def import_data(self, event=None):
+	def importData(self, event=None):
 		fileNames = tk.filedialog.askopenfilenames()
 		for fileName in fileNames:
-			self.exec_str('@import {0};'.format(fileName))
+			self.execStr('@import {0};'.format(fileName))
 
-	def show_current_database(self, event=None):
+	def showCurrentDatabase(self, event=None):
 		tk.messagebox.showinfo(title='Current Database', message=agrra.config.DB)
 
-	def save_chart(self, event=None):
+	def saveCurrent(self, event=None):
 		fileName = tk.filedialog.asksaveasfilename()
 		if not fileName:
 			return

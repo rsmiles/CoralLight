@@ -160,7 +160,6 @@ def expand_lines(lines):
 			new_lines.append(line)
 
 	expanded = subvars('\n'.join(new_lines), params)
-	print(expanded)
 	return [query.split('\n') for query in expanded]
 
 def read_chart(lines):
