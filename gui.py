@@ -207,7 +207,7 @@ class ChartBrowser:
 		self.goButton.pack(side='left')
 
 	def setIndex(self, index):
-		assert index > 0, 'Cannot view before first chart'
+		assert index >= 0, 'Cannot view before first chart'
 		assert index < len(self.charts), 'Cannot view after last chart'
 		self.index = index
 		self.display.configure(image=self.charts[self.index])
