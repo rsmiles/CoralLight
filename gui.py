@@ -43,6 +43,14 @@ class ButtonPair:
 	def pack_forget(self):
 		self.root.pack_forget()
 
+	def lower(self):
+		self.root.lower()
+		self.right.lower()
+		self.left.lower()
+
+	def lift(self, aboveThis=None):
+		self.root.lift(aboveThis)
+
 class ParamEntry:
 	def __init__(self, parent, param):
 		self.parent = parent
@@ -68,6 +76,7 @@ class ParamEntry:
 		self.entries.append(entry)
 		entry.pack()
 		self.buttons.pack()
+		self.buttons.lift(self.entries[-1])
 
 	def removeEntry(self, event=None):
 		if len(self.entries) > 1:
@@ -173,6 +182,7 @@ class PluginInterface:
 		self.charts.append(chart)
 		chart.pack()
 		self.buttons.pack()
+		self.buttons.lift(self.charts[-1].root)
 
 	def removeChart(self):
 		if len(self.charts) > 1:
@@ -371,6 +381,7 @@ class MainWindow:
 		self.pluginInterface = PluginInterface(self.controlWindow, pluginFile)
 		self.pluginInterface.pack()
 		self.genChartsButton.pack()
+		self.genChartsButton.lift(self.pluginInterface.root)
 
 	def genCharts(self):
 		global state
