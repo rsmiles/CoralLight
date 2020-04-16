@@ -26,6 +26,23 @@ def displayFormat(string):
 	return displayString
 	
 
+class ButtonPair:
+	def __init__(self, parent, leftText=None, leftCommand=None, rightText=None, rightCommand=None):
+		self.parent = parent
+		self.root = tk.Frame(self.parent)
+
+		self.left = tk.Button(self.root, text=leftText, command=leftCommand)
+		self.left.pack(side='left')
+
+		self.right = tk.Button(self.root, text=rightText, command=rightCommand)
+		self.right.pack(side='left')
+
+	def pack(self, **opts):
+		self.root.pack(**opts)
+
+	def pack_forget(self):
+		self.root.pack_forget()
+
 class ParamEntry:
 	def __init__(self, parent, param):
 		self.parent = parent
@@ -38,18 +55,24 @@ class ParamEntry:
 		self.label = tk.Label(self.root, text=displayFormat(self.param))
 		self.label.pack()
 
-		self.addButton = tk.Button(self.root, text='+', command=self.addEntry)
-		self.addButton.pack()
+		self.buttons = ButtonPair(self.root, leftText='+', leftCommand=self.addEntry, rightText='-', rightCommand=self.removeEntry)
+		self.buttons.pack()
+
 
 		self.entries = []
 		self.addEntry()
 
 	def addEntry(self, event=None):
-		self.addButton.pack_forget()
+		self.buttons.pack_forget()
 		entry = tk.Entry(self.root)
 		self.entries.append(entry)
 		entry.pack()
-		self.addButton.pack()
+		self.buttons.pack()
+
+	def removeEntry(self, event=None):
+		if len(self.entries) > 1:
+			self.entries[-1].pack_forget()
+			self.entries.pop()
 
 	def get(self):
 		string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
@@ -91,6 +114,9 @@ class ChartEntry:
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
+
+	def pack_forget(self):
+		self.root.pack_forget()
 
 class PluginInterface:
 	def __init__(self, parent, name):
@@ -135,18 +161,24 @@ class PluginInterface:
 
 		self.charts = []
 
-		self.addButton = tk.Button(self.root, text='Add Chart', command=self.addChart)
-		self.addButton.pack()
+		self.buttons = ButtonPair(self.root, leftText='Add Chart', leftCommand=self.addChart, rightText='Remove Chart', rightCommand=self.removeChart)
+		self.buttons.pack()
 	
 		self.addChart()
 
 	def addChart(self):
-		self.addButton.pack_forget()
+		self.buttons.pack_forget()
 		self.numCharts += 1
 		chart = ChartEntry(self.root, self.params, self.numCharts)
 		self.charts.append(chart)
 		chart.pack()
-		self.addButton.pack()
+		self.buttons.pack()
+
+	def removeChart(self):
+		if len(self.charts) > 1:
+			self.charts[-1].pack_forget()
+			self.charts.pop()
+			self.numCharts -= 1
 
 	def getQuery(self):
 		params = {}
@@ -294,6 +326,7 @@ class MainWindow:
 
 		self.controlFrame.pack(fill='both', expand=True)
 		self.controlCanvas.pack(side='left', fill='both', expand=True)
+		self.scrollbar.pack(side='right', fill='y')
 		self.controlCanvas.create_window((4, 4), window=self.controlWindow, anchor='nw', tags='self.controlWindow')
 
 		self.controlWindow.bind('<Configure>', self.controlFrameConfigure)
@@ -304,7 +337,6 @@ class MainWindow:
 		self.chartTypeBox = ttk.Combobox(self.controlWindow, values=[plugin[1] for plugin in self.plugins])
 		self.chartTypeBox.pack()
 		self.chartTypeBox.bind('<<ComboboxSelected>>', self.loadPlugin)
-		self.scrollbar.pack(side='right', fill='y')
 
 		self.pluginInterface = None
 		self.genChartsButton = tk.Button(self.controlWindow, text='Generate Charts', command=self.genCharts)
