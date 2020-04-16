@@ -235,6 +235,9 @@ class ChartBrowser:
 		self.indexEntry = tk.Entry(self.controlFrame, width=2, text=str(self.index))
 		self.indexEntry.pack(side='left')
 
+		self.totalLabel = tk.Label(self.controlFrame, text='')
+		self.totalLabel.pack(side='left')
+
 		self.goButton = tk.Button(self.controlFrame, text='Go', command=self.go)
 		self.goButton.pack(side='left')
 
@@ -253,12 +256,15 @@ class ChartBrowser:
 	def setCharts(self, charts):
 		self.charts = [ImageTk.PhotoImage(chart) for chart in charts]
 		self.setIndex(0)
+		self.totalLabel.configure(text='/ {0}'.format(len(self.charts)))
 
 	def left(self):
-		self.setIndex(self.index - 1)
+		if self.index > 0:
+			self.setIndex(self.index - 1)
 
 	def right(self):
-		self.setIndex(self.index + 1)
+		if self.index < len(self.charts) - 1:
+			self.setIndex(self.index + 1)
 
 	def go(self):
 		index = None 
@@ -326,7 +332,7 @@ class MainWindow:
 
 		self.controlFrame.pack(fill='both', expand=True)
 		self.controlCanvas.pack(side='left', fill='both', expand=True)
-		self.scrollbar.pack(side='right', fill='y')
+		self.scrollbar.pack(side='left', fill='y')
 		self.controlCanvas.create_window((4, 4), window=self.controlWindow, anchor='nw', tags='self.controlWindow')
 
 		self.controlWindow.bind('<Configure>', self.controlFrameConfigure)
