@@ -285,7 +285,7 @@ class MainWindow:
 	def __init__(self):
 		self.root = tk.Tk()
 		self.root.title('{0} ({1})'.format(APP_NAME, APP_VERSION))
-		self.root.geometry('300x300')
+		self.root.geometry('200x300')
 		pluginFiles = os.listdir(PLUGIN_DIR)
 		self.plugins = [(plugin, displayFormat(plugin)) for plugin in pluginFiles]
 		self.initUI()
