@@ -52,9 +52,11 @@ class ButtonPair:
 		self.root.lift(aboveThis)
 
 class ParamEntry:
-	def __init__(self, parent, param):
+	def __init__(self, parent, param, paramType='text', extraInfo=None):
 		self.parent = parent
 		self.param = param
+		self.paramType = paramType
+		self.extrainfo = extraInfo
 		self.initUI()
 
 	def initUI(self):
@@ -63,20 +65,26 @@ class ParamEntry:
 		self.label = tk.Label(self.root, text=displayFormat(self.param))
 		self.label.pack()
 
-		self.buttons = ButtonPair(self.root, leftText='+', leftCommand=self.addEntry, rightText='-', rightCommand=self.removeEntry)
-		self.buttons.pack()
+		self.buttons = None
 
+		if self.paramType == 'textlist':
+			self.buttons = ButtonPair(self.root, leftText='+', leftCommand=self.addEntry, rightText='-', rightCommand=self.removeEntry)
+			self.buttons.pack()
 
 		self.entries = []
 		self.addEntry()
 
 	def addEntry(self, event=None):
-		self.buttons.pack_forget()
+		if self.buttons:
+			self.buttons.pack_forget()
+
 		entry = tk.Entry(self.root)
 		self.entries.append(entry)
 		entry.pack()
-		self.buttons.pack()
-		self.buttons.lift(self.entries[-1])
+
+		if self.buttons:
+			self.buttons.pack()
+			self.buttons.lift(self.entries[-1])
 
 	def removeEntry(self, event=None):
 		if len(self.entries) > 1:
@@ -84,7 +92,17 @@ class ParamEntry:
 			self.entries.pop()
 
 	def get(self):
-		string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
+		string = None
+		if self.paramType == 'raw':
+			string = self.entries[0].get()
+		if self.paramType == 'text':
+			string = "'" + self.entries[0].get() + "'"
+
+		elif self.paramType == 'textlist':
+			string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
+		else:
+			raise Exception('Unkown input type: ' + self.paramType)
+
 		return string
 
 	def pack(self, **opts):
@@ -111,7 +129,7 @@ class ChartEntry:
 
 		self.entries = []
 		for param in self.params:
-			entry = ParamEntry(self.root, param)
+			entry = ParamEntry(self.root, *param)
 			self.entries.append(entry)
 			entry.pack()
 
@@ -137,7 +155,7 @@ class PluginInterface:
 	def initText(self):
 		self.title = None
 		self.description = ''
-		self.params =[]
+		self.params = []
 		self.text = ''
 		self.numCharts = 0
 
@@ -151,8 +169,8 @@ class PluginInterface:
 				else:
 					if line[0] == '@':
 						splitLine = line.split(' ')
-						if splitLine[0] == '@param':
-							self.params.append(splitLine[1].strip())
+						if splitLine[0] == '@input':
+							self.params.append(list(field.strip() for field in splitLine[1:]))
 						else:
 							self.text += line
 					else:
@@ -193,7 +211,7 @@ class PluginInterface:
 	def getQuery(self):
 		params = {}
 		for param in self.params:
-			params[param] = ''
+			params[param[0]] = ''
 		params['title'] = ''
 
 		for chart in self.charts:
