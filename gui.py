@@ -4,6 +4,7 @@ import tkinter as tk
 import tkinter.filedialog
 import traceback
 from tkinter import ttk, messagebox, filedialog
+from tkcalendar import DateEntry
 from PIL import ImageTk
 import os
 
@@ -89,6 +90,10 @@ class ParamEntry:
 		elif self.paramType == 'field' or self.paramType == 'fieldlist':
 			fieldValues = getFieldValues(self.extraInfo)
 			entry = ttk.Combobox(self.root, values=fieldValues)
+		elif self.paramType == 'date':
+			entry = DateEntry(self.root)
+		else:
+			raise ValueError('Unkown input type: ' + self.paramType)
 
 		self.entries.append(entry)
 		entry.pack()
@@ -108,11 +113,14 @@ class ParamEntry:
 			string = self.entries[0].get()
 		if self.paramType == 'text' or self.paramType == 'field':
 			string = "'" + self.entries[0].get() + "'"
-
 		elif self.paramType == 'textlist' or self.paramType == 'fieldlist':
 			string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
+		elif self.paramType == 'date':
+			orig = str(self.entries[0].get_date())
+			lst = orig.split('-')
+			string = '/'.join(reversed(lst))
 		else:
-			raise Exception('Unkown input type: ' + self.paramType)
+			raise ValueError('Unkown input type: ' + self.paramType)
 
 		return string
 
