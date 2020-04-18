@@ -72,7 +72,7 @@ class ParamEntry:
 
 		self.buttons = None
 
-		if self.paramType == 'textlist':
+		if self.paramType == 'textlist' or self.paramType == 'fieldlist':
 			self.buttons = ButtonPair(self.root, leftText='+', leftCommand=self.addEntry, rightText='-', rightCommand=self.removeEntry)
 			self.buttons.pack()
 
@@ -86,7 +86,7 @@ class ParamEntry:
 		entry = None
 		if self.paramType == 'text' or self.paramType == 'textlist':
 			entry = tk.Entry(self.root)
-		elif self.paramType == 'field':
+		elif self.paramType == 'field' or self.paramType == 'fieldlist':
 			fieldValues = getFieldValues(self.extraInfo)
 			entry = ttk.Combobox(self.root, values=fieldValues)
 
@@ -109,7 +109,7 @@ class ParamEntry:
 		if self.paramType == 'text' or self.paramType == 'field':
 			string = "'" + self.entries[0].get() + "'"
 
-		elif self.paramType == 'textlist':
+		elif self.paramType == 'textlist' or self.paramType == 'fieldlist':
 			string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
 		else:
 			raise Exception('Unkown input type: ' + self.paramType)
