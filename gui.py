@@ -26,6 +26,11 @@ def displayFormat(string):
 	return displayString
 	
 
+def getFieldValues(field):
+	agrra.cursor.execute('SELECT DISTINCT TRIM({0}) AS fval\nFROM data\nORDER by fval;'.format(field))
+	values = agrra.cursor.fetchall()
+	return list([value[0] for value in values])
+
 class ButtonPair:
 	def __init__(self, parent, leftText=None, leftCommand=None, rightText=None, rightCommand=None):
 		self.parent = parent
@@ -56,7 +61,7 @@ class ParamEntry:
 		self.parent = parent
 		self.param = param
 		self.paramType = paramType
-		self.extrainfo = extraInfo
+		self.extraInfo = extraInfo
 		self.initUI()
 
 	def initUI(self):
@@ -78,7 +83,13 @@ class ParamEntry:
 		if self.buttons:
 			self.buttons.pack_forget()
 
-		entry = tk.Entry(self.root)
+		entry = None
+		if self.paramType == 'text' or self.paramType == 'textlist':
+			entry = tk.Entry(self.root)
+		elif self.paramType == 'field':
+			fieldValues = getFieldValues(self.extraInfo)
+			entry = ttk.Combobox(self.root, values=fieldValues)
+
 		self.entries.append(entry)
 		entry.pack()
 
@@ -95,7 +106,7 @@ class ParamEntry:
 		string = None
 		if self.paramType == 'raw':
 			string = self.entries[0].get()
-		if self.paramType == 'text':
+		if self.paramType == 'text' or self.paramType == 'field':
 			string = "'" + self.entries[0].get() + "'"
 
 		elif self.paramType == 'textlist':

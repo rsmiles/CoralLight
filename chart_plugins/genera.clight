@@ -2,9 +2,9 @@
 
 # Generate a pie chart of all coral genera at specified sites.
 
-@input site textlist
+@input site field site_name
 @chart pie
 SELECT genus, COUNT(*)
 FROM data
-WHERE TRIM(site_name) IN $site
+WHERE TRIM(site_name) = $site
 GROUP BY genus;
