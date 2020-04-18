@@ -87,6 +87,8 @@ def corallight_ymax(arg):
 	global state
 	state.ymax = int(arg)
 
+def corallight_input(*args):
+	raise Exception('"@input" should be used in input code for the graphical interface only')
 
 builtins = {'exit': corallight_exit,
 			'opendb': corallight_opendb,
@@ -95,7 +97,8 @@ builtins = {'exit': corallight_exit,
 			'title': corallight_title,
 			'saveas': corallight_saveas,
 			'chart': corallight_chart,
-			'ymax': corallight_ymax}
+			'ymax': corallight_ymax,
+			'input': corallight_input}
 
 def run_command(command):
 	return builtins[command[0][1:]](*command[1:])
