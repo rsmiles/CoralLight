@@ -25,7 +25,12 @@ CORAL_INIT = config.APP_PATH + 'coral.csv'
 COLORS_10 = pallete_10.mpl_colors
 COLORS_20 = pallete_20.mpl_colors
 
-TITLE_FONT = ImageFont.truetype('LiberationSerif-Bold.ttf', 20)
+#FONT_FAMILY = pyplot.rcParams['font.family']
+FONT_PATH = font_manager.findfont(font_manager.FontProperties())
+FONT_PATH_BOLD = font_manager.findfont(font_manager.FontProperties(weight='bold'))
+TITLE_FONT_SIZE = 15
+
+TITLE_FONT_PIL = ImageFont.truetype(FONT_PATH_BOLD, 15)
 
 def gen_config(app_path=config.APP_PATH):
 	config_str= \
@@ -260,13 +265,23 @@ def chart(qry, chart_type, title='', ymax=None):
 
 		if title != '':
 			imgwidth, imgheight = img.size
-			textwidth, textheight = draw.textsize(title, font=TITLE_FONT)
+			textwidth, textheight = draw.textsize(title, font=TITLE_FONT_PIL)
 			text_x = imgwidth / 2 - textwidth / 2
-			draw.text((text_x, 10), title, fill='black', font=TITLE_FONT)
+			draw.text((text_x, 10), title, fill='black', font=TITLE_FONT_PIL)
 
 	if chart_type == 'bar':
 		if title != '':
-			pyplot.title(title, {'fontname': 'Liberation Serif', 'fontweight': 'bold'})
+			oldWeight = pyplot.rcParams['font.weight']
+			oldSize = pyplot.rcParams['font.size']
+
+			pyplot.rcParams['font.weight'] = 'bold'
+			pyplot.rcParams['font.size'] = TITLE_FONT_SIZE
+			
+			pyplot.title(title)
+
+			pyplot.rcParams['font.weight'] = oldWeight
+			pyplot.rcParams['font.size'] = oldSize
+			
 
 		chart_labels = [str(label) +  ' (' + str(data[i]) + ')' for i, label in enumerate(labels)]
 		pyplot.xticks(range(len(chart_labels)), chart_labels, rotation='vertical')
