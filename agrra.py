@@ -129,6 +129,7 @@ def max_id(table):
 
 def sql_insert(table, params, values):
 	db_assert()
+
 	values = [str(x) if type(x) == datetime.time else x for x in values]
 	params_str = ', '.join(params)
 	vals_str = ', '.join(['?' for x in values])
@@ -149,7 +150,11 @@ def import_xlsx(xlsx):
 		for key in sheet_datamap:
 			if key != 'min_row' and key != 'max_col':
 				sheet_params.append(key)
-				sheet_values.append(ws[sheet_datamap[key]['pos']].value)
+				if key == 'date': # re-format date to something SQLite will understand
+					val = ws[sheet_datamap[key]['pos']].value
+					sheet_values.append('-'.join(reversed(val.split('/'))))
+				else:
+					sheet_values.append(ws[sheet_datamap[key]['pos']].value)
 
 		sheet_params.append('doc_id')
 		sheet_values.append(doc_id)

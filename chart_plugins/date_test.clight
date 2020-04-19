@@ -1,6 +1,6 @@
-Date Test
+# Date Test
 
-Test for date field type.
+# Test for date field type.
 
 @input date date
 @chart pie

@@ -117,8 +117,7 @@ class ParamEntry:
 			string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
 		elif self.paramType == 'date':
 			orig = str(self.entries[0].get_date())
-			lst = orig.split('-')
-			string = '/'.join(reversed(lst))
+			print(orig)
 		else:
 			raise ValueError('Unkown input type: ' + self.paramType)
 
@@ -432,6 +431,7 @@ class MainWindow:
 		self.chartBrowser.setCharts(state.export.charts)
 
 	def execStr(self, string):
+		print(string)
 		try:
 			exec_str(string)
 		except Exception as e:
@@ -447,7 +447,7 @@ class MainWindow:
 			return
 
 		elif os.path.isfile(fileName):
-			os.remove(filename)
+			os.remove(fileName)
 		self.execStr('@opendb {0};'.format(fileName))
 
 	def openDatabase(self, event=None):
