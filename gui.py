@@ -116,8 +116,7 @@ class ParamEntry:
 		elif self.paramType == 'textlist' or self.paramType == 'fieldlist':
 			string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
 		elif self.paramType == 'date':
-			orig = str(self.entries[0].get_date())
-			print(orig)
+			string = "'" + str(self.entries[0].get_date()) + "'"
 		else:
 			raise ValueError('Unkown input type: ' + self.paramType)
 
@@ -431,7 +430,6 @@ class MainWindow:
 		self.chartBrowser.setCharts(state.export.charts)
 
 	def execStr(self, string):
-		print(string)
 		try:
 			exec_str(string)
 		except Exception as e:
