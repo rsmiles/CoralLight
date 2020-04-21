@@ -1,3 +1,6 @@
 __pycache__
 .*.swp
 *.xlsx
+*.sqlite3
+*.sqlite
+*.db
