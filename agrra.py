@@ -17,8 +17,8 @@ import atexit, config, csv, datetime, io, os, random, sqlite3
 
 DATAMAP_PATH = config.APP_PATH + 'datamap/'
 SHEET_DATAMAP = DATAMAP_PATH + 'sheet.csv'
-TRANSECT_DATAMAP=DATAMAP_PATH + 'transect.csv'
-ENCOUNTER_DATAMAP=DATAMAP_PATH + 'encounter.csv'
+TRANSECT_DATAMAP = DATAMAP_PATH + 'transect.csv'
+ENCOUNTER_DATAMAP = DATAMAP_PATH + 'encounter.csv'
 DB_INIT = config.APP_PATH + 'agrra.sql'
 CORAL_INIT = config.APP_PATH + 'coral.csv'
 
