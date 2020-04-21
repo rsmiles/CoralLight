@@ -1,19 +1,60 @@
 #!/usr/bin/env python3
 
 import config, csv, os, sys
+from datetime import datetime
 from openpyxl import Workbook
 from openpyxl import load_workbook
+
+assert len(sys.argv) == 2, 'No data file specified'
 
 DATAMAP_PATH = config.APP_PATH + 'datamap/'
 SHEET_DATAMAP = DATAMAP_PATH + 'sheet.csv'
 TRANSECT_DATAMAP = DATAMAP_PATH + 'transect.csv'
 ENCOUNTER_DATAMAP = DATAMAP_PATH + 'encounter.csv'
-sheet_datamap = {}
-
-assert len(sys.argv == 2), 'No data file specified'
-
 DATAFILE = sys.argv[1]
+NUM_SHEETS = 2
 
+def isSheetEmpty(ws):
+	return ws['A1'].value == None
+
+def writeField(ws, dataMap, key, value):
+	ws[dataMap[key]['pos']] = value
+
+def createSheet(wb, title):
+	global sheet_datamap
+	ws = None
+	if len(wb.worksheets) == 1:
+		if isSheetEmpty(wb.worksheets[0]):
+			ws = wb.active
+			ws.title = title
+		else:
+			ws = wb.create_sheet(title=title)
+	else:
+		ws = wb.create_sheet(title=title)
+
+	sheetTable = {'description': 'AGRRA Coral Data Entry Sheet',
+					'version': '5.7: August 2015',
+					'copyright': '© Ocean Research & Education Foundation',
+					'revision': '2016-05-27',
+					'surveyor': 'Test Surveyor',
+					'AGRRA_code': 'N/A',
+					'site_name': 'Test Site',
+					'date': datetime.today().strftime('%d/%m/%Y'),
+					'bottom_temp': 28,
+					'bottom_temp_units': 'ºC',
+					'instrument_type': 'Dive Computer',
+					'level': 'detailed'}
+
+	for key in sheetTable:
+		writeField(ws, sheet_datamap, key, sheetTable[key])
+
+	return ws
+
+def createTransect():
+	pass
+
+
+sheet_datamap = {}
 with open(SHEET_DATAMAP) as mapfile:
 	reader = csv.DictReader(mapfile)
 	for row in reader:
@@ -37,8 +78,21 @@ with open(ENCOUNTER_DATAMAP) as mapfile:
 
 wb = None
 if os.path.isfile(DATAFILE):
-	wb = load_workbook(datafile)
+	wb = load_workbook(DATAFILE)
 else:
 	wb = Workbook()
 
+sheetNum = 1
+transectNum = 1
+
+while sheetNum <= NUM_SHEETS:
+	sheetTitle = 'Transect {0} + {1}'.format(str(transectNum), str(transectNum + 1))
+
+	ws = createSheet(wb, sheetTitle)
+
+	transectNum += 1
+	transectNum += 1
+	sheetNum += 1
+
 wb.save(DATAFILE)
+
