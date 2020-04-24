@@ -1,10 +1,11 @@
 """
 agrra.py
-Copyright (c) 2020 Robert Smiley
-Contents of this module are available under the terms of the GNU General Public
-License, version 3. See LICENSE.TXT for details.
 
-This module is the backend for CoralLight.
+Copyright (c) 2020 Robert Smiley, all rights reserved.
+Contents of this module are available under the terms of the GNU General Public
+License, version 3. See LICENSE for details.
+
+Backend code for CoralLight.
 It contains functions that implement it's key features:
 	-Creation of new databases
 	-Connecting to databases
