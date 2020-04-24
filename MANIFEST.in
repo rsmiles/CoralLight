@@ -1,1 +1,2 @@
-recursive-include coral_light/ *.csv *.sql *.clight
+recursive-include coral_light *.csv *.sql *.clight
+

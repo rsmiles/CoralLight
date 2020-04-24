@@ -1,5 +1,4 @@
 import setuptools
-import from app_info import *
 
 with open("README.md") as readmeFile:
 	longDescription = readmeFile.read()
@@ -18,6 +17,7 @@ setuptools.setup(
 		'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 		'Operating System :: OS Independent',
 	],
+	packages=setuptools.find_packages(),
 	python3_requires='>=3.6',
 	include_package_data=True,
 )
