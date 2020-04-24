@@ -1,5 +1,5 @@
 from app_info import *
-from libcorallight import *
+from coral_light import *
 import tkinter as tk
 import tkinter.filedialog
 import traceback
@@ -8,7 +8,7 @@ from tkcalendar import DateEntry
 from PIL import ImageTk
 import os
 
-PLUGIN_DIR = agrra.config.APP_PATH + 'chart_plugins/'
+PLUGIN_DIR = agrra.APP_PATH + 'chart_plugins/'
 TITLE_FONT = 'Helvetica 12 bold'
 
 def displayFormat(string):

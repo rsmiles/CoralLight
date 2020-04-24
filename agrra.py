@@ -32,13 +32,15 @@ from palettable.tableau import Tableau_20 as pallete_20
 from palettable.tableau import Tableau_10 as pallete_10
 import atexit, config, csv, datetime, io, os, random, sqlite3
 
+# Get the path of our application
+APP_PATH = os.path.dirname(os.path.abspath(__file__)) + '/'
 
-DATAMAP_PATH = config.APP_PATH + 'datamap/'
+DATAMAP_PATH = APP_PATH + 'datamap/'
 SHEET_DATAMAP = DATAMAP_PATH + 'sheet.csv'
 TRANSECT_DATAMAP = DATAMAP_PATH + 'transect.csv'
 ENCOUNTER_DATAMAP = DATAMAP_PATH + 'encounter.csv'
-DB_INIT = config.APP_PATH + 'agrra.sql'
-CORAL_INIT = config.APP_PATH + 'coral.csv'
+DB_INIT = APP_PATH + 'agrra.sql'
+CORAL_INIT = APP_PATH + 'coral.csv'
 
 COLORS_10 = pallete_10.mpl_colors
 COLORS_20 = pallete_20.mpl_colors
@@ -49,7 +51,7 @@ TITLE_FONT_SIZE = 15
 
 TITLE_FONT_PIL = ImageFont.truetype(FONT_PATH_BOLD, 15)
 
-def gen_config(app_path=config.APP_PATH):
+def gen_config(app_path=APP_PATH):
 	"""
 	Generate a config.py file based on this module's current settings.
 
@@ -60,12 +62,12 @@ def gen_config(app_path=config.APP_PATH):
 	"""
 
 	config_str= \
-'''APP_PATH = '{0}'
+'''
 DB = '{1}'
 '''
-	with open(config.APP_PATH + 'config.py.tmp', 'w') as config_file:
+	with open(APP_PATH + 'config.py.tmp', 'w') as config_file:
 		config_file.write(config_str.format(app_path, config.DB))
-		os.replace(config.APP_PATH + 'config.py.tmp', config.APP_PATH + 'config.py')
+		os.replace(APP_PATH + 'config.py.tmp', APP_PATH + 'config.py')
 
 def agraa_atexit():
 	"""

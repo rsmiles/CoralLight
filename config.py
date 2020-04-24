@@ -1,2 +1,2 @@
-APP_PATH = '/home/robert/src/CoralLight/'
-DB = 'None'
+
+DB = '/media/veracrypt1/test.sqlite3'
