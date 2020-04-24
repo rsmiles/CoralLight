@@ -5,8 +5,8 @@ with open("README.md") as readmeFile:
 	longDescription = readmeFile.read()
 
 setuptools.setup(
-	name=APP_NAME,
-	version=APP_VERSION,
+	name='coral_light',
+	version='0.0',
 	author='Robert Smiley',
 	author_email='yarnoiser@gmail.com',
 	description='Coral Data Visualization Tool',
