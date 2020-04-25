@@ -9,7 +9,7 @@ License, version 3. See LICENSE for details.
 """
 
 import os, sys
-from .backend import *
+from . import backend
 
 class CoralLight_Export:
 	def __init__(self):
