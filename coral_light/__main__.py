@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from textmode import *
-import gui, sys
+from . import gui
+from .textmode import *
+import sys
 
 def main():
 	if '-t' in sys.argv or '--text' in sys.argv:

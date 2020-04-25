@@ -11,7 +11,8 @@ Allows for reading SQL Code with CoralLight annotations and producing charts
 from said code.
 """
 
-import agrra, os, sys
+import os, sys
+from .agrra import *
 
 class CoralLight_Export:
 	"""

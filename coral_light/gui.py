@@ -1,5 +1,7 @@
-from app_info import *
-from textmode import *
+from .app_info import *
+from .textmode import *
+from . import agrra
+
 import tkinter as tk
 import tkinter.filedialog
 import traceback

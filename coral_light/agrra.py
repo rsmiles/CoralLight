@@ -30,7 +30,8 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from palettable.tableau import Tableau_20 as pallete_20
 from palettable.tableau import Tableau_10 as pallete_10
-import atexit, config, csv, datetime, io, os, random, sqlite3
+import atexit, csv, datetime, io, os, random, sqlite3
+from . import config
 
 # Get the path of our application
 APP_PATH = os.path.dirname(os.path.abspath(__file__)) + '/'

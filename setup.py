@@ -18,6 +18,7 @@ setuptools.setup(
 		'Operating System :: OS Independent',
 	],
 	packages=setuptools.find_packages(),
+	install_requires=['matplotlib', 'openpyxl', 'palettable', 'Pillow', 'tkcalendar'],
 	python3_requires='>=3.6',
 	include_package_data=True,
 )
