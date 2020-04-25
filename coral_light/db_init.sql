@@ -1,3 +1,11 @@
+-- db_init.sql
+-- 
+-- Initialization code for CoralLight's database
+--
+-- Copyright (c) 2020 Robert Smiley, all rights reserved.
+-- Contents of this file are available under the terms of the GNU General Public
+-- License, version 3. See LICENSE for details.
+
 CREATE TABLE doc (
 	doc_id INTEGER PRIMARY KEY,
 	doc_title TEXT NOT NULL

@@ -2,7 +2,7 @@
 
 # Generate a pie chart of all coral genera at specified sites.
 
-@input site fieldlist site_name
+@input site fieldlist sheet site_name
 @chart pie
 SELECT genus, COUNT(*)
 FROM data

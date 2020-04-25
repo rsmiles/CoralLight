@@ -1,3 +1,13 @@
+"""
+gui.py
+
+CoralLight's graphical user interface.
+
+Copyright (c) 2020 Robert Smiley, all rights reserved.
+Contents of this module are available under the terms of the GNU General Public
+License, version 3. See LICENSE for details.
+"""
+
 from .app_info import *
 from .text_mode import *
 from . import backend
@@ -29,8 +39,8 @@ def displayFormat(string):
 	return displayString
 	
 
-def getFieldValues(field):
-	backend.cursor.execute('SELECT DISTINCT TRIM({0}) AS fval\nFROM data\nORDER by fval;'.format(field))
+def getFieldValues(table, field):
+	backend.cursor.execute('SELECT DISTINCT TRIM({0}) AS fval\nFROM {1}\nORDER by fval;'.format(field, table))
 	values = backend.cursor.fetchall()
 	return list([value[0] for value in values])
 
@@ -53,14 +63,12 @@ class ButtonPair:
 
 	def lower(self):
 		self.root.lower()
-		self.right.lower()
-		self.left.lower()
 
 	def lift(self, aboveThis=None):
 		self.root.lift(aboveThis)
 
 class ParamEntry:
-	def __init__(self, parent, param, paramType='text', extraInfo=None):
+	def __init__(self, parent, param, paramType='text', *extraInfo):
 		self.parent = parent
 		self.param = param
 		self.paramType = paramType
@@ -90,7 +98,7 @@ class ParamEntry:
 		if self.paramType == 'text' or self.paramType == 'textlist':
 			entry = tk.Entry(self.root)
 		elif self.paramType == 'field' or self.paramType == 'fieldlist':
-			fieldValues = getFieldValues(self.extraInfo)
+			fieldValues = getFieldValues(self.extraInfo[0], self.extraInfo[1])
 			entry = ttk.Combobox(self.root, values=fieldValues)
 		elif self.paramType == 'date':
 			entry = DateEntry(self.root)

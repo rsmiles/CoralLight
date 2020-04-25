@@ -53,15 +53,6 @@ TITLE_FONT_SIZE = 15
 TITLE_FONT_PIL = ImageFont.truetype(FONT_PATH_BOLD, 15)
 
 def gen_config(app_path=APP_PATH):
-	"""
-	Generate a config.py file based on this module's current settings.
-
-	The generated file goes in the specified app_path directory
-	(defaulting to the current app path). Resulting file overwrites the current
-	config.py file if it exists.
-
-	"""
-
 	config_str= \
 '''
 DB = '{1}'
@@ -74,10 +65,6 @@ DB = '{1}'
 		os.replace(APP_PATH + 'config.py.tmp', APP_PATH + 'config.py')
 
 def agraa_atexit():
-	"""
-	Run when CoralLight exits. Calls gen_config to create a new config file,
-	ensuring the correct database is loaded when the application is started again.
-	"""
 	gen_config()
 
 atexit.register(agraa_atexit)
@@ -110,24 +97,12 @@ db = None
 cursor = None
 
 def str2None(x):
-	"""
-	If the given string x is empty, return none. Else return the original x.
-	"""
 	if x == '':
 		return None
 	else:
 		return x
 
 def open_db(name):
-	"""
-	Open the database specified by name, creating it if it doesn't exist.
-
-	A created database is fully initialized with the correct tables and is ready
-	to receive data. The global "db" and "cursor" variables are set to the opened
-	database, and an active cursor to that database.
-
-	config.db is set to the database name.
-	"""
 	global db
 	global cursor
 
@@ -168,7 +143,6 @@ if config.DB:
 
 
 def db_assert():
-	"""Assert that the database is loaded and that there is an active cursor for it."""
 	global db
 	global cursor
 
@@ -176,7 +150,6 @@ def db_assert():
 	assert cursor, "No database cursor"
 
 def max_id(table):
-	"""Return the highest ID number from the given table"""
 	db_assert()
 	cursor.execute('SELECT MAX(' + table + '_id) from ' + table)
 	mid = cursor.fetchone()[0]
@@ -185,14 +158,6 @@ def max_id(table):
 	return mid
 
 def sql_insert(table, params, values):
-	"""
-	Insert params and their values into the table.
-
-	table: A string corresponding to the name of a database table.
-	params: A list of strings, corresponding to the fields of the table.
-	values: A list of strings, corresponding to values to be inserted into the table.
-			Each assigned to the corresponding positional entry in params.
-	"""
 	db_assert()
 
 	values = [str(x) if type(x) == datetime.time else x for x in values]
@@ -202,7 +167,6 @@ def sql_insert(table, params, values):
 	cursor.execute(ins_qry, values)
 
 def import_xlsx(xlsx):
-	"""Import the data contained in the excel file xlsx into the database."""
 	db_assert()
 
 	wb = load_workbook(xlsx)
@@ -274,10 +238,6 @@ def import_xlsx(xlsx):
 	db.commit()
 
 def unzip_pairs(lst):
-	"""
-	Takes a list of pairs and returns two separate lists, one of all first elements
-	and one of all second elements.
-	"""
 	lst1 = []
 	lst2 = []
 
@@ -288,22 +248,6 @@ def unzip_pairs(lst):
 	return lst1, lst2
 
 def chart(qry, chart_type, title='', ymax=None):
-	"""
-	Create a chart based upon the provided query.
-
-	qry: A string representing an SQL query. Should return two columns, the first
-		being chart labels, the second being values shown in the chart.
-
-	chart_type: A string representing the type of chart to produce. Should be either
-				"pie" or "bar".
-
-	title: A string to be used as the title of the current chart.
-
-	ymax: The highest shown y axis value on the generated chart. Optional, defaults
-			to None. Only used with bar graphs.
-
-	Returns an image buffer containing the newly created chart.
-	"""
 	db_assert()
 	cursor.execute(qry)
 	res = cursor.fetchall()

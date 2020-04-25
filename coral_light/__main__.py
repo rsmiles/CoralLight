@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+"""
+__main__.py
+
+Main CoralLight program.
+
+Copyright (c) 2020 Robert Smiley, all rights reserved.
+Contents of this module are available under the terms of the GNU General Public
+License, version 3. See LICENSE for details.
+"""
+
 from . import gui
 from .text_mode import *
 import sys
