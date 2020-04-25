@@ -1,5 +1,5 @@
 """
-coral_light.py
+textmode.py
 
 Copyright (c) 2020 Robert Smiley, all rights reserved.
 Contents of this module are available under the terms of the GNU General Public

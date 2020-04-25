@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from coral_light import *
+from textmode import *
 import gui, sys
 
 def main():

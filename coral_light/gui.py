@@ -1,5 +1,5 @@
 from app_info import *
-from coral_light import *
+from textmode import *
 import tkinter as tk
 import tkinter.filedialog
 import traceback
