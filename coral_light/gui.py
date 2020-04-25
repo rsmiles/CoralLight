@@ -1,6 +1,6 @@
 from .app_info import *
-from .textmode import *
-from . import agrra
+from .text_mode import *
+from . import backend
 
 import tkinter as tk
 import tkinter.filedialog
@@ -10,7 +10,7 @@ from tkcalendar import DateEntry
 from PIL import ImageTk
 import os
 
-PLUGIN_DIR = agrra.APP_PATH + 'chart_plugins/'
+PLUGIN_DIR = backend.APP_PATH + 'chart_plugins/'
 TITLE_FONT = 'Helvetica 12 bold'
 
 def displayFormat(string):
@@ -30,8 +30,8 @@ def displayFormat(string):
 	
 
 def getFieldValues(field):
-	agrra.cursor.execute('SELECT DISTINCT TRIM({0}) AS fval\nFROM data\nORDER by fval;'.format(field))
-	values = agrra.cursor.fetchall()
+	backend.cursor.execute('SELECT DISTINCT TRIM({0}) AS fval\nFROM data\nORDER by fval;'.format(field))
+	values = backend.cursor.fetchall()
 	return list([value[0] for value in values])
 
 class ButtonPair:
@@ -463,7 +463,7 @@ class MainWindow:
 			self.execStr('@import {0};'.format(fileName))
 
 	def showCurrentDatabase(self, event=None):
-		tk.messagebox.showinfo(title='Current Database', message=agrra.config.DB)
+		tk.messagebox.showinfo(title='Current Database', message=backend.config.DB)
 
 	def saveCurrentChart(self, event=None):
 		global state

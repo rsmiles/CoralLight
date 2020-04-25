@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from . import gui
-from .textmode import *
+from .text_mode import *
 import sys
 
 def main():

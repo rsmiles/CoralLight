@@ -1,2 +1,1 @@
-
-DB = 'None'
+DB = None

@@ -1,5 +1,5 @@
 """
-agrra.py
+backend.py
 
 Copyright (c) 2020 Robert Smiley, all rights reserved.
 Contents of this module are available under the terms of the GNU General Public
@@ -40,7 +40,7 @@ DATAMAP_PATH = APP_PATH + 'datamap/'
 SHEET_DATAMAP = DATAMAP_PATH + 'sheet.csv'
 TRANSECT_DATAMAP = DATAMAP_PATH + 'transect.csv'
 ENCOUNTER_DATAMAP = DATAMAP_PATH + 'encounter.csv'
-DB_INIT = APP_PATH + 'agrra.sql'
+DB_INIT = APP_PATH + 'db_init.sql'
 CORAL_INIT = APP_PATH + 'coral.csv'
 
 COLORS_10 = pallete_10.mpl_colors
@@ -67,7 +67,10 @@ def gen_config(app_path=APP_PATH):
 DB = '{1}'
 '''
 	with open(APP_PATH + 'config.py.tmp', 'w') as config_file:
-		config_file.write(config_str.format(app_path, config.DB))
+		if config.DB:
+			config_file.write(config_str.format(app_path, config.DB))
+		else:
+			config_file.write('DB = None')
 		os.replace(APP_PATH + 'config.py.tmp', APP_PATH + 'config.py')
 
 def agraa_atexit():

@@ -1,1 +1,1 @@
-__all__ = ['agrra', 'app_info', 'config', 'gui']
+__all__ = ['backend', 'text_mode', 'app_info', 'config', 'gui']

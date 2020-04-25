@@ -1,5 +1,5 @@
 """
-textmode.py
+text_mode.py
 
 Copyright (c) 2020 Robert Smiley, all rights reserved.
 Contents of this module are available under the terms of the GNU General Public
@@ -12,7 +12,7 @@ from said code.
 """
 
 import os, sys
-from .agrra import *
+from .backend import *
 
 class CoralLight_Export:
 	"""
@@ -87,12 +87,12 @@ def corallight_exit():
 
 def corallight_opendb(*args):
 	"""Available in CoralLight's text mode. Opens the database specified by *args. *args are joined by spaces to form database name."""
-	agrra.open_db(' '.join(args))
+	backend.open_db(' '.join(args))
 
 def corallight_import(*args):
 	"""Available in CoralLight's text mode. Imports the excel file specified by *args. *args are joined by spaces to form file name."""
 	xlsx = ' '.join(args)
-	agrra.import_xlsx(xlsx)
+	backend.import_xlsx(xlsx)
 
 def corallight_saveas(*args):
 	"""Available in CoralLight's text mode. Specifies the name of the file to save the next chart to after generating it. *args are joined by spaces to form file name."""
@@ -175,7 +175,7 @@ def exec_query(query, chart, title, ymax, saveas):
 	if query == '':
 		return
 
-	chart_img = agrra.chart(query, chart, title=title, ymax=ymax)
+	chart_img = backend.chart(query, chart, title=title, ymax=ymax)
 	if state.mode == 'GUI':
 		state.export.query = query
 		state.export.charts.append(chart_img)
