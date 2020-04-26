@@ -1,0 +1,13 @@
+# Bleaching
+
+# Generate a pie chart breaking down of bleachings in a given genus at a given site.
+
+@input sites fieldlist sheet site_name
+@input genera fieldlist coral genus
+@chart pie
+SELECT bleach_code, COUNT(*)
+FROM data
+WHERE genus IN $genera
+AND site_name IN $sites
+GROUP BY bleach_code;
+

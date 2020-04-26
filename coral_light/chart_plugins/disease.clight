@@ -1,0 +1,13 @@
+# Disease
+
+# Pie chart of diseases in given genera at given sites.
+
+@input sites fieldlist sheet site_name
+@input genera fieldlist coral genus
+@chart pie
+SELECT disease, COUNT(*)
+FROM data
+WHERE genus IN $genera
+AND TRIM(site_name) IN $sites
+GROUP BY disease;
+

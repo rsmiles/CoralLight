@@ -1,0 +1,11 @@
+# Volume
+
+# Generate a pie chart of the volume of coral colonies.
+
+@input site fieldlist sheet site_name
+@chart pie
+SELECT genus, SUM(length * width * height) / 1000000 AS volume
+FROM data
+WHERE TRIM(site_name) in $site
+GROUP BY genus;
+

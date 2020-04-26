@@ -8,3 +8,4 @@ SELECT genus, COUNT(*)
 FROM data
 WHERE TRIM(site_name) IN $site
 GROUP BY genus;
+
