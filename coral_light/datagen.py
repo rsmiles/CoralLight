@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import config, csv, os, random, sys
+import csv, os, random, sys
 from datetime import datetime
 from time import localtime, strftime
 from openpyxl import Workbook
@@ -8,11 +8,12 @@ from openpyxl import load_workbook
 
 assert len(sys.argv) == 3, 'usage: ./datagen.py site_name output_file'
 
-DATAMAP_PATH = config.APP_PATH + 'datamap/'
+APP_PATH = os.path.dirname(os.path.abspath(__file__)) + '/'
+DATAMAP_PATH = APP_PATH + 'datamap/'
 SHEET_DATAMAP = DATAMAP_PATH + 'sheet.csv'
 TRANSECT_DATAMAP = DATAMAP_PATH + 'transect.csv'
 ENCOUNTER_DATAMAP = DATAMAP_PATH + 'encounter.csv'
-CORAL_INIT = config.APP_PATH + 'coral.csv'
+CORAL_INIT = APP_PATH + 'coral.csv'
 SITE_NAME = sys.argv[1]
 DATAFILE = sys.argv[2]
 NUM_SHEETS = 2
