@@ -394,9 +394,8 @@ class MainWindow:
 
 		while not backend.config.DB:
 			title = 'Setup Database'
-			message = '''No database is currently loaded.
-Would you like to open an existing database?
-(If not, you will be prompted to save a new one.)'''
+			message = 'No database is currently loaded. Would you like to open an existing one? (If not, you will be prompted to create a new database.)'
+
 			if tk.messagebox.askyesno(title=title, message=message):
 				self.openDatabase()
 			else:

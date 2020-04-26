@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+
+import coral_light
+from coral_light import main
+
+main.main()
