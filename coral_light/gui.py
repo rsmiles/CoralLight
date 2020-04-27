@@ -24,6 +24,10 @@ from os import path
 PLUGIN_DIR = backend.APP_PATH + 'chart_plugins/'
 TITLE_FONT = 'Helvetica 12 bold'
 
+def showError(error):
+	print(traceback.format_exc())
+	tk.messagebox.showerror('Error', str(error))
+
 def displayFormat(string):
 	noCap = ['the', 'for', 'by']
 	noExt = os.path.splitext(string)[0]
@@ -70,10 +74,22 @@ class ButtonPair:
 
 class ParamEntry:
 	def __init__(self, parent, param, paramType='text', *extraInfo):
+		OPTIONS = (':upper',)
+
 		self.parent = parent
 		self.param = param
 		self.paramType = paramType
-		self.extraInfo = extraInfo
+		self.extraInfo = []
+		self.options = []
+		for e in extraInfo:
+			if e[0] == ':':
+				self.options.append(e)
+			else:
+				self.extraInfo.append(e)
+		
+		for option in self.options:
+			assert option in OPTIONS, 'Invalid input option: ' + option
+		
 		self.initUI()
 
 	def initUI(self):
@@ -119,7 +135,6 @@ class ParamEntry:
 			self.entries.pop()
 
 	def get(self):
-		string = None
 		if self.paramType == 'raw':
 			string = self.entries[0].get()
 		if self.paramType == 'text' or self.paramType == 'field':
@@ -131,7 +146,10 @@ class ParamEntry:
 		else:
 			raise ValueError('Unkown input type: ' + self.paramType)
 
-		return string
+		if ':upper' in self.options:
+			return string.upper()
+		else:
+			return string
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -326,8 +344,7 @@ class ChartBrowser:
 			self.indexEntry.insert(0, str(index + 1))
 			self.display.configure(image=self.charts[self.index])
 		except Exception as e:
-			print(traceback.format_exc())
-			tk.messagebox.showerror('Error', str(e))
+			showError(e)
 
 	def setCharts(self, charts):
 		self.charts = [ImageTk.PhotoImage(chart) for chart in charts]
@@ -347,8 +364,7 @@ class ChartBrowser:
 		try:
 			index = int(self.indexEntry.get())
 		except Exception as e:
-			print(traceback.format_exc())
-			tk.messagebox.showerror('Error', 'Only integers accepted')
+			showError(e)
 			return
 
 		self.setIndex(index - 1)
@@ -448,15 +464,18 @@ class MainWindow:
 		return None
 
 	def loadPlugin(self, event):
-		self.root.geometry('')
-		pluginFile = self.getPluginFile(self.chartTypeBox.get())
-		if self.pluginInterface:
-			self.pluginInterface.pack_forget()
-			self.genChartsButton.pack_forget()
-		self.pluginInterface = PluginInterface(self.controlWindow, pluginFile)
-		self.pluginInterface.pack()
-		self.genChartsButton.pack()
-		self.genChartsButton.lift(self.pluginInterface.root)
+		try:
+			self.root.geometry('')
+			pluginFile = self.getPluginFile(self.chartTypeBox.get())
+			if self.pluginInterface:
+				self.pluginInterface.pack_forget()
+				self.genChartsButton.pack_forget()
+			self.pluginInterface = PluginInterface(self.controlWindow, pluginFile)
+			self.pluginInterface.pack()
+			self.genChartsButton.pack()
+			self.genChartsButton.lift(self.pluginInterface.root)
+		except Exception as e:
+			showError(e)
 
 	def genCharts(self):
 		global state
@@ -473,8 +492,7 @@ class MainWindow:
 		try:
 			exec_str(string)
 		except Exception as e:
-			print(traceback.format_exc())
-			tk.messagebox.showerror('Error', str(e))
+			showError(e)
 
 	def quit(self, event=None):
 		self.root.destroy()

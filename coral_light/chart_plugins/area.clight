@@ -2,7 +2,8 @@
 
 # Generate a pie chart of the area of coral colonies.
 
-@input site fieldlist sheet site_name
-SELECT TRIM(site_name) AS name, SUM(length * width) / 10000
+@input site fieldlist sheet site_name :upper
+SELECT UPPER(TRIM(site_name)) AS name, SUM(length * width) / 10000
 FROM data
 GROUP BY name;
+

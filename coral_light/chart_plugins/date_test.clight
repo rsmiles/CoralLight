@@ -3,7 +3,6 @@
 # Test for date field type.
 
 @input date date
-@chart pie
 SELECT genus, COUNT(*)
 FROM data
 WHERE STRFTIME('%s', date) < STRFTIME('%s', $date)
