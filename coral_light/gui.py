@@ -241,8 +241,8 @@ class PluginInterface:
 		self.titleLabel = tk.Label(self.root, text=self.title, font=TITLE_FONT)
 		self.titleLabel.pack()
 
-		self.descriptionLabel = tk.Label(self.root, text=self.description)
-		self.descriptionLabel.pack()
+		self.descriptionMessage = tk.Message(self.root, text=self.description)
+		self.descriptionMessage.pack()
 
 		self.charts = []
 
