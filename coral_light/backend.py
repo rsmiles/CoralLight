@@ -53,13 +53,11 @@ TITLE_FONT_SIZE = 15
 TITLE_FONT_PIL = ImageFont.truetype(FONT_PATH_BOLD, 15)
 
 def gen_config(app_path=APP_PATH):
-	config_str= \
-'''
-DB = '{1}'
-'''
+	config_str= 'DB = {0}'
+
 	with open(APP_PATH + 'config.py.tmp', 'w') as config_file:
 		if config.DB:
-			config_file.write(config_str.format(app_path, config.DB))
+			config_file.write(config_str.format(config.DB))
 		else:
 			config_file.write('DB = None')
 		os.replace(APP_PATH + 'config.py.tmp', APP_PATH + 'config.py')

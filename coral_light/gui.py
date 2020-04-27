@@ -148,6 +148,12 @@ class ChartEntry:
 		self.label = tk.Label(self.root, text='Chart ' + str(self.number), font=TITLE_FONT)
 		self.label.pack()
 
+		self.typeLabel = tk.Label(self.root, text='Format')
+		self.typeLabel.pack()
+
+		self.typeBox = ttk.Combobox(self.root, values=['Pie', 'Bar'])
+		self.typeBox.pack()
+
 		self.titleLabel = tk.Label(self.root, text='Title')
 		self.titleLabel.pack()
 
@@ -160,11 +166,17 @@ class ChartEntry:
 			self.entries.append(entry)
 			entry.pack()
 
+	def setType(self, value):
+		self.typeBox.set(value)
+
 	def getEntries(self):
 		return [(entry.param, entry.get()) for entry in self.entries]
 
 	def getTitle(self):
 		return self.titleEntry.get()
+
+	def getType(self):
+		return self.typeBox.get().strip().lower()
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -226,6 +238,11 @@ class PluginInterface:
 		chart = ChartEntry(self.root, self.params, self.numCharts)
 		self.charts.append(chart)
 		chart.pack()
+
+		# default chart type if more than one
+		if self.numCharts > 1:
+			chart.setType(displayFormat(self.charts[-2].getType()))
+
 		self.buttons.pack()
 		self.buttons.lift(self.charts[-1].root)
 
@@ -239,12 +256,14 @@ class PluginInterface:
 		params = {}
 		for param in self.params:
 			params[param[0]] = ''
-		params['title'] = ''
+		params['_title'] = ''
+		params['_type'] = ''
 
 		for chart in self.charts:
 			for param, value in chart.getEntries():
 				params[param] += value + '|'
-			params['title'] += chart.getTitle() + '|'
+			params['_title'] += chart.getTitle() + '|'
+			params['_type'] += chart.getType() + '|'
 
 		# remove final pipe symbol from each row
 		for param in params:
@@ -254,7 +273,8 @@ class PluginInterface:
 		for param in params:
 			qry += '@param {0} {1}\n'.format(param, params[param])
 
-		qry += '@title $title\n'
+		qry += '@title $_title\n'
+		qry += '@chart $_type\n'
 		qry += self.text
 
 		return qry
