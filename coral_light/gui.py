@@ -24,6 +24,16 @@ from os import path
 PLUGIN_DIR = backend.APP_PATH + 'chart_plugins/'
 TITLE_FONT = 'Helvetica 12 bold'
 
+def sanitize(fieldName, string, escapeSingleQuote=True):
+	BLACKLIST = ';'
+	for char in string:
+		assert char not in BLACKLIST, 'Forbidden character in {0}: {1}'.format(fieldName, char)
+	# escape any single quotes
+	if escapeSingleQuote:
+		return "''".join(string.split("'"))
+	else:
+		return string
+
 def showError(error):
 	print(traceback.format_exc())
 	tk.messagebox.showerror('Error', str(error))
@@ -135,14 +145,16 @@ class ParamEntry:
 			self.entries.pop()
 
 	def get(self):
+		fieldName = displayFormat(self.param)
+
 		if self.paramType == 'raw':
 			string = self.entries[0].get()
 		if self.paramType == 'text' or self.paramType == 'field':
-			string = "'" + self.entries[0].get() + "'"
+			string = "'" + sanitize(fieldName, self.entries[0].get()) + "'"
 		elif self.paramType == 'textlist' or self.paramType == 'fieldlist':
-			string = "('" + "', '".join([entry.get() for entry in self.entries]) + "')"
+			string = "('" + "', '".join([sanitize(fieldName, entry.get()) for entry in self.entries]) + "')"
 		elif self.paramType == 'date':
-			string = "'" + str(self.entries[0].get_date()) + "'"
+			string = "'" + sanitize(fieldName, str(self.entries[0].get_date())) + "'"
 		else:
 			raise ValueError('Unkown input type: ' + self.paramType)
 
@@ -278,11 +290,14 @@ class PluginInterface:
 		params['_title'] = ''
 		params['_type'] = ''
 
-		for chart in self.charts:
-			for param, value in chart.getEntries():
-				params[param] += value + '|'
-			params['_title'] += chart.getTitle() + '|'
-			params['_type'] += chart.getType() + '|'
+		try:
+			for chart in self.charts:
+				for param, value in chart.getEntries():
+					params[param] += value + '|'
+				params['_title'] += sanitize('Title', chart.getTitle(), escapeSingleQuote=False) + '|'
+				params['_type'] += sanitize('Format', chart.getType()) + '|'
+		except Exception as e:
+			showError(e)
 
 		# remove final pipe symbol from each row
 		for param in params:
