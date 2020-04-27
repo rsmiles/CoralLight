@@ -19,6 +19,7 @@ from tkinter import ttk, messagebox, filedialog
 from tkcalendar import DateEntry
 from PIL import ImageTk
 import os
+from os import path
 
 PLUGIN_DIR = backend.APP_PATH + 'chart_plugins/'
 TITLE_FONT = 'Helvetica 12 bold'
@@ -412,7 +413,7 @@ class MainWindow:
 
 		self.controlWindow.bind('<Configure>', self.controlFrameConfigure)
 
-		while not backend.config.DB:
+		while not backend.config.DB or not os.path.isfile(backend.config.DB):
 			title = 'Setup Database'
 			message = 'No database is currently loaded. Would you like to open an existing one? (If not, you will be prompted to create a new database.)'
 
@@ -442,7 +443,7 @@ class MainWindow:
 
 	def getPluginFile(self, n):
 		for pluginFile, pluginName in self.plugins:
-			if pluginName == n:
+			if pluginName.lower() == n.strip().lower():
 				return pluginFile
 		return None
 
