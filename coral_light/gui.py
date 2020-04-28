@@ -413,6 +413,8 @@ class MainWindow:
 		pluginFiles = os.listdir(PLUGIN_DIR)
 		self.plugins = [(plugin, displayFormat(plugin)) for plugin in pluginFiles]
 		self.initUI()
+		self.pluginLoaded = False
+		self.chartsGenerated = False
 
 	def initUI(self):
 		self.menuBar = tk.Menu(self.root)
@@ -479,6 +481,13 @@ class MainWindow:
 		self.root.bind('<Control-d>', self.showCurrentDatabase)
 		self.root.bind('<Control-s>', self.saveCurrentChart)
 		self.root.bind('<Control-Shift-S>', self.saveAllCharts)
+		self.root.bind('<Control-g>', self.genCharts)
+		self.root.bind('<Control-Left>', self.chartLeft)
+		self.root.bind('<Control-Right>', self.chartRight)
+		self.root.bind('<Control-Prior>', self.scrollUp)
+		self.root.bind('<Control-Next>', self.scrollDown)
+		self.root.bind('<Prior>', self.pageUp)
+		self.root.bind('<Next>', self.pageDown)
 
 		# Setup mouse wheel scrolling
 		self.root.bind('<Button-4>', self.mouseWheel)
@@ -495,6 +504,26 @@ class MainWindow:
 			delta = event.delta
 
 		self.controlCanvas.yview_scroll(delta, 'units')
+
+	def scrollUp(self, event):
+		self.controlCanvas.yview_scroll(-1, 'units')
+
+	def scrollDown(self, event):
+		self.controlCanvas.yview_scroll(1, 'units')
+
+	def pageUp(self, event):
+		self.controlCanvas.yview_scroll(-1, 'pages')
+
+	def pageDown(self, event):
+		self.controlCanvas.yview_scroll(1, 'pages')
+
+	def chartLeft(self, event):
+		if self.chartsGenerated:
+			self.chartBrowser.left()
+
+	def chartRight(self, event):
+		if self.chartsGenerated:
+			self.chartBrowser.right()
 
 	def controlFrameConfigure(self, event):
 		self.controlCanvas.configure(scrollregion=self.controlCanvas.bbox('all'))
@@ -524,8 +553,14 @@ class MainWindow:
 			self.genChartsButton.lift(self.pluginInterface.root)
 		except Exception as e:
 			showError(e)
+		else:
+			self.pluginLoaded = True
 
-	def genCharts(self):
+	def genCharts(self, event=None):
+		# Prevent user from activating this with a keyboard shortcut before a plugin is loaded.
+		if not self.pluginLoaded:
+			return
+
 		global state
 		qry = self.pluginInterface.getQuery()
 		if qry != '':
@@ -536,6 +571,7 @@ class MainWindow:
 				self.controlFrame.pack(side='left', fill='both', expand=True)
 				self.chartBrowser.pack(side='left', fill='both', expand=True)
 			self.chartBrowser.setCharts(state.export.charts)
+			self.chartsGenerated = True
 
 	def execStr(self, string):
 		try:
