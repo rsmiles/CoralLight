@@ -578,6 +578,8 @@ class MainWindow:
 			exec_str(string)
 		except Exception as e:
 			showError(e)
+			return False
+		return True
 
 	def quit(self, event=None):
 		self.root.destroy()
@@ -603,22 +605,18 @@ class MainWindow:
 		if not fileName:
 			return
 
-		try:
-			self.execStr('@opendb {0};'.format(fileName))
-		except Exception as e:
-			showError(e)
-		else:
+		result = self.execStr('@opendb {0};'.format(fileName))
+
+		if result:
 			message='Database "{0}" opened successfully.'.format(os.path.basename(fileName))
 			tk.messagebox.showinfo(title='Success', message=message)
 
 	def importData(self, event=None):
 		fileNames = tk.filedialog.askopenfilenames(filetypes=DATA_FILETYPES)
-		try:
-			for fileName in fileNames:
-				self.execStr('@import {0};'.format(fileName))
-		except Exception as e:
-			showError(e)
-		else:
+		for fileName in fileNames:
+			result = self.execStr('@import {0};'.format(fileName))
+
+		if result:			 
 			if len(fileNames) == 0:
 				return
 			elif len(fileNames) == 1:

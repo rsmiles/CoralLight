@@ -104,6 +104,8 @@ def open_db(name):
 	global db
 	global cursor
 
+	exists = os.path.isfile(name)
+
 	db = sqlite3.connect(name)
 
 	cursor = db.cursor()
@@ -111,6 +113,7 @@ def open_db(name):
 	# Check if table structure has been initialized already. If not, initialize it.
 	cursor.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='doc'")
 	if not cursor.fetchone()[0] == 1 :
+		assert not exists, 'Could not open "{0}": Not a CoralLight database'.format(os.path.basename(name))
 		# Execute db init file...
 		with open(DB_INIT) as initfile:
 			init = initfile.read()
@@ -164,10 +167,18 @@ def sql_insert(table, params, values):
 	ins_qry = 'INSERT INTO {0} ({1}) VALUES ({2})'.format(table, params_str, vals_str)
 	cursor.execute(ins_qry, values)
 
+def verify_workbook(doc_name, wb):
+	for ws in wb:
+		assert ws[sheet_datamap['description']['pos']].value == 'AGRRA Coral Data Entry Sheet', \
+		'Could not import "{0}": Not an AGRRA Coral Data Entry Sheet'.format(os.path.basename(doc_name))
+
 def import_xlsx(xlsx):
 	db_assert()
 
 	wb = load_workbook(xlsx)
+
+	verify_workbook(xlsx, wb)
+
 	doc_id = max_id('doc') + 1
 
 	cursor.execute('INSERT INTO doc (doc_id, doc_title) VALUES (?, ?)', [doc_id, os.path.basename(xlsx)])
