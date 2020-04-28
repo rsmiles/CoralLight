@@ -517,9 +517,16 @@ class MainWindow:
 		if not fileName:
 			return
 
-		elif os.path.isfile(fileName):
-			os.remove(fileName)
-		self.execStr('@opendb {0};'.format(fileName))
+		name, ext = os.path.splitext(fileName)
+
+		if ext == '':
+			ext = '.sqlite3'
+
+		fullName = name + ext
+
+		if os.path.isfile(fullName):
+			os.remove(fullName)
+		self.execStr('@opendb {0};'.format(fullName))
 
 	def openDatabase(self, event=None):
 		fileName = tk.filedialog.askopenfilename()
