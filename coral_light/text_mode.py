@@ -198,7 +198,6 @@ def exec_chart(chart):
 		exec_lines(query)
 
 def exec_str(string):
-	print(string)
 	global state
 	state.export.charts = []
 	for q in read_chart(string.split('\n')):

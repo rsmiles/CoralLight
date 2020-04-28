@@ -24,11 +24,14 @@ from os import path
 PLUGIN_DIR = backend.APP_PATH + 'chart_plugins/'
 TITLE_FONT = 'Helvetica 12 bold'
 
+DB_FILETYPES = (('SQLite3 Databases', ('*.sqlite3', '*.sqlite', '*.db')),)
+DATA_FILETYPES = (('Microsoft Excel Workbooks', '*.xlsx'),)
+
 def sanitize(fieldName, string, escapeSingleQuote=True):
 	BLACKLIST = ';'
 	for char in string:
-		assert char not in BLACKLIST, 'Forbidden character in {0}: {1}'.format(fieldName, char)
-	# escape any single quotes
+		assert char not in BLACKLIST, 'Forbidden character in {0}: {1}.'.format(fieldName, char)
+
 	if escapeSingleQuote:
 		return "''".join(string.split("'"))
 	else:
@@ -45,6 +48,10 @@ def displayFormat(string):
 
 	formatList = []
 	for i, word in enumerate(wordList):
+
+		if word == '':
+			continue
+
 		if i == 0 or word not in noCap:
 			formatList.append(word[0].upper() + word[1:])
 		else:
@@ -98,7 +105,7 @@ class ParamEntry:
 				self.extraInfo.append(e)
 		
 		for option in self.options:
-			assert option in OPTIONS, 'Invalid input option: ' + option
+			assert option in OPTIONS, 'Invalid input option: ' + option + '.'
 		
 		self.initUI()
 
@@ -146,6 +153,10 @@ class ParamEntry:
 
 	def get(self):
 		fieldName = displayFormat(self.param)
+
+		for entry in self.entries:
+			assert entry.get() != '', 'No value entered for field "{0}".'.format(fieldName)
+
 
 		if self.paramType == 'raw':
 			string = self.entries[0].get()
@@ -204,10 +215,15 @@ class ChartEntry:
 		return [(entry.param, entry.get()) for entry in self.entries]
 
 	def getTitle(self):
-		return self.titleEntry.get()
+		chartTitle = self.titleEntry.get()
+		assert chartTitle != '', 'No title Entered for Chart {0}.'.format(str(self.number))
+		return chartTitle
 
-	def getType(self):
-		return self.typeBox.get().strip().lower()
+	def getType(self, forQuery=False):
+		chartType = self.typeBox.get().strip().lower()
+		if forQuery:
+			assert chartType != '', 'No format selected for Chart {0}.'.format(str(self.number))
+		return chartType
 
 	def pack(self, **opts):
 		self.root.pack(**opts)
@@ -295,11 +311,12 @@ class PluginInterface:
 				for param, value in chart.getEntries():
 					params[param] += value + '|'
 				params['_title'] += sanitize('Title', chart.getTitle(), escapeSingleQuote=False) + '|'
-				params['_type'] += sanitize('Format', chart.getType()) + '|'
+				params['_type'] += sanitize('Format', chart.getType(forQuery=True)) + '|'
 		except Exception as e:
 			showError(e)
+			return ''
 
-		# remove final pipe symbol from each row
+		# remove final pipe symbol from each row, and ensure there are values
 		for param in params:
 			params[param] = params[param][:-1]
 
@@ -352,8 +369,8 @@ class ChartBrowser:
 
 	def setIndex(self, index):
 		try:
-			assert index >= 0, 'Cannot view before first chart'
-			assert index < len(self.charts), 'Cannot view after last chart'
+			assert index >= 0, 'Cannot view before first chart.'
+			assert index < len(self.charts), 'Cannot view after last chart.'
 			self.index = index
 			self.indexEntry.delete(0, tk.END)
 			self.indexEntry.insert(0, str(index + 1))
@@ -416,17 +433,6 @@ class MainWindow:
 		self.chartMenu.add_command(label='Save All', command=self.saveAllCharts, accelerator='Ctrl+Shift+S')
 		self.menuBar.add_cascade(label='Chart', menu=self.chartMenu)
 
-		# Setup keyboard shortcuts
-		self.root.bind_all('<Control-q>', self.quit)
-
-		self.root.bind('<Control-w>', self.quit)
-		self.root.bind('<Control-n>', self.newDatabase)
-		self.root.bind('<Control-o>', self.openDatabase)
-		self.root.bind('<Control-i>', self.importData)
-		self.root.bind('<Control-d>', self.showCurrentDatabase)
-		self.root.bind('<Control-s>', self.saveCurrentChart)
-		self.root.bind('<Control-Shift-S>', self.saveAllCharts)
-
 		self.root.config(menu=self.menuBar)
 
 		self.chartBrowser = None
@@ -463,6 +469,33 @@ class MainWindow:
 		self.pluginInterface = None
 		self.genChartsButton = tk.Button(self.controlWindow, text='Generate Charts', command=self.genCharts)
 
+		# Setup keyboard shortcuts
+		self.root.bind_all('<Control-q>', self.quit)
+
+		self.root.bind('<Control-w>', self.quit)
+		self.root.bind('<Control-n>', self.newDatabase)
+		self.root.bind('<Control-o>', self.openDatabase)
+		self.root.bind('<Control-i>', self.importData)
+		self.root.bind('<Control-d>', self.showCurrentDatabase)
+		self.root.bind('<Control-s>', self.saveCurrentChart)
+		self.root.bind('<Control-Shift-S>', self.saveAllCharts)
+
+		# Setup mouse wheel scrolling
+		self.root.bind('<Button-4>', self.mouseWheel)
+		self.root.bind('<Button-5>', self.mouseWheel)
+		self.root.bind('<MouseWheel>', self.mouseWheel)
+
+	def mouseWheel(self, event):
+		delta = 0
+		if event.num == 4:
+			delta = -1
+		elif event.num == 5:
+			delta = 1
+		else:
+			delta = event.delta
+
+		self.controlCanvas.yview_scroll(delta, 'units')
+
 	def controlFrameConfigure(self, event):
 		self.controlCanvas.configure(scrollregion=self.controlCanvas.bbox('all'))
 
@@ -495,13 +528,14 @@ class MainWindow:
 	def genCharts(self):
 		global state
 		qry = self.pluginInterface.getQuery()
-		self.execStr(qry)
-		if not self.chartBrowser:
-			self.controlFrame.pack_forget()
-			self.chartBrowser = ChartBrowser(self.root)
-			self.controlFrame.pack(side='left', fill='both', expand=True)
-			self.chartBrowser.pack(side='left', fill='both', expand=True)
-		self.chartBrowser.setCharts(state.export.charts)
+		if qry != '':
+			self.execStr(qry)
+			if not self.chartBrowser:
+				self.controlFrame.pack_forget()
+				self.chartBrowser = ChartBrowser(self.root)
+				self.controlFrame.pack(side='left', fill='both', expand=True)
+				self.chartBrowser.pack(side='left', fill='both', expand=True)
+			self.chartBrowser.setCharts(state.export.charts)
 
 	def execStr(self, string):
 		try:
@@ -513,32 +547,51 @@ class MainWindow:
 		self.root.destroy()
 
 	def newDatabase(self, event=None):
-		fileName = tk.filedialog.asksaveasfilename()
+		fileName = tk.filedialog.asksaveasfilename(filetypes=DB_FILETYPES)
 		if not fileName:
 			return
 
-		name, ext = os.path.splitext(fileName)
+		if os.path.isfile(fileName):
+			os.remove(fileName)
 
-		if ext == '':
-			ext = '.sqlite3'
-
-		fullName = name + ext
-
-		if os.path.isfile(fullName):
-			os.remove(fullName)
-		self.execStr('@opendb {0};'.format(fullName))
+		try:
+			self.execStr('@opendb {0};'.format(fileName))
+		except Exception as e:
+			showError(e)
+		else:
+			message='Database "{0}" created successfully.'.format(os.path.basename(fileName))
+			tk.messagebox.showinfo(title='Success', message=message)
 
 	def openDatabase(self, event=None):
-		fileName = tk.filedialog.askopenfilename()
+		fileName = tk.filedialog.askopenfilename(filetypes=DB_FILETYPES)
 		if not fileName:
 			return
 
-		self.execStr('@opendb {0};'.format(fileName))
+		try:
+			self.execStr('@opendb {0};'.format(fileName))
+		except Exception as e:
+			showError(e)
+		else:
+			message='Database "{0}" opened successfully.'.format(os.path.basename(fileName))
+			tk.messagebox.showinfo(title='Success', message=message)
 
 	def importData(self, event=None):
-		fileNames = tk.filedialog.askopenfilenames()
-		for fileName in fileNames:
-			self.execStr('@import {0};'.format(fileName))
+		fileNames = tk.filedialog.askopenfilenames(filetypes=DATA_FILETYPES)
+		try:
+			for fileName in fileNames:
+				self.execStr('@import {0};'.format(fileName))
+		except Exception as e:
+			showError(e)
+		else:
+			if len(fileNames) == 0:
+				return
+			elif len(fileNames) == 1:
+				message='File "{0}" imported successfully.'.format(os.path.basename(fileNames[0]))
+			else:
+				message='{0} files imported successfully.'.format(str(len(fileNames)))
+
+			tk.messagebox.showinfo(title='Success', message=message)
+		
 
 	def showCurrentDatabase(self, event=None):
 		tk.messagebox.showinfo(title='Current Database', message=backend.config.DB)

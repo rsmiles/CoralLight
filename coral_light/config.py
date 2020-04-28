@@ -1,1 +1,1 @@
-DB = '/home/robert/src/CoralLight/test.db'
+DB = '/media/veracrypt1/test.sqlite3'
