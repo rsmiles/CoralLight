@@ -18,7 +18,7 @@ import traceback
 from tkinter import ttk, messagebox, filedialog
 from tkcalendar import DateEntry
 from PIL import ImageTk
-import os
+import os, shutil
 from os import path
 
 PLUGIN_DIR = backend.APP_PATH + 'chart_plugins/'
@@ -26,6 +26,7 @@ TITLE_FONT = 'Helvetica 12 bold'
 
 DB_FILETYPES = (('SQLite3 Databases', ('*.sqlite3', '*.sqlite', '*.db')),)
 DATA_FILETYPES = (('Microsoft Excel Workbooks', '*.xlsx'),)
+CORALLIGHT_PLUGIN_FILETYPES = (('CoralLight Plugins', '*.clight'),)
 
 def sanitize(fieldName, string, escapeSingleQuote=True):
 	BLACKLIST = ';'
@@ -410,11 +411,19 @@ class MainWindow:
 		self.root = tk.Tk()
 		self.root.title('{0} ({1})'.format(APP_NAME, APP_VERSION))
 		self.root.geometry('200x300')
-		pluginFiles = os.listdir(PLUGIN_DIR)
-		self.plugins = [(plugin, displayFormat(plugin)) for plugin in pluginFiles]
+		self.plugins = []
 		self.initUI()
+		self.refreshPlugins()
 		self.pluginLoaded = False
 		self.chartsGenerated = False
+
+	def refreshPlugins(self):
+		pluginFiles = os.listdir(PLUGIN_DIR)
+		self.plugins = [(plugin, displayFormat(plugin)) for plugin in pluginFiles]
+		self.plugins.sort(key=lambda x: x[1])
+		pluginList = [displayFormat(x[1]) for x in self.plugins]
+		self.chartTypeBox.configure(values = pluginList)
+		self.chartTypeBox.values = pluginList
 
 	def initUI(self):
 		self.menuBar = tk.Menu(self.root)
@@ -433,7 +442,9 @@ class MainWindow:
 		self.chartMenu = tk.Menu(self.menuBar, tearoff=False)
 		self.chartMenu.add_command(label='Save Current', command=self.saveCurrentChart, accelerator='Ctrl+S')
 		self.chartMenu.add_command(label='Save All', command=self.saveAllCharts, accelerator='Ctrl+Shift+S')
+		self.chartMenu.add_command(label='Install Chart Plugin', command=self.installChartPlugin, accelerator='Ctrl+Shift+I')
 		self.menuBar.add_cascade(label='Chart', menu=self.chartMenu)
+
 
 		self.root.config(menu=self.menuBar)
 
@@ -481,6 +492,7 @@ class MainWindow:
 		self.root.bind('<Control-d>', self.showCurrentDatabase)
 		self.root.bind('<Control-s>', self.saveCurrentChart)
 		self.root.bind('<Control-Shift-S>', self.saveAllCharts)
+		self.root.bind('<Control-Shift-I>', self.installChartPlugin)
 		self.root.bind('<Control-g>', self.genCharts)
 		self.root.bind('<Control-Left>', self.chartLeft)
 		self.root.bind('<Control-Right>', self.chartRight)
@@ -648,6 +660,33 @@ class MainWindow:
 
 		for index, chart in enumerate(state.export.charts):
 			chart.save(dirName + '/' + str(index + 1) + '.png')
+
+	def installChartPlugin(self, event=None):
+		plugins = tk.filedialog.askopenfilenames(filetypes=CORALLIGHT_PLUGIN_FILETYPES)
+		installed = 0
+		for plugin in plugins:
+			bname = os.path.basename(plugin)
+			if os.path.isfile(PLUGIN_DIR + bname):
+				message='A plugin named "{0}" is already installed. Would you like to replace it?'.format(bname)
+				if tk.messagebox.askyesno(title='Plugin Exists', message=message):
+					shutil.copy(plugin, PLUGIN_DIR + bname)
+					installed += 1
+				else:
+					continue
+			else:
+				shutil.copy(plugin, PLUGIN_DIR + bname)
+				installed += 1
+
+			if installed == 0:
+				pass
+			elif installed == 1:
+				message='Chart Plugin "{0}" installed successfully.'.format(os.path.basename(plugins[0]))
+				tk.messagebox.showinfo(title='Success', message=message)
+			else:
+				message = '{0} chart plugins installed successfully'.format(str(installed))
+				tk.messagebox.showinfo(title='Success', message=message)
+
+			self.refreshPlugins()
 
 	def run(self):
 		self.root.mainloop()
