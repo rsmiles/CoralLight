@@ -1,0 +1,23 @@
+# Predators and Competitors
+
+# Corals recorded as affected by predators or competitors
+# vs. those that have not been.
+
+@input site fieldlist sheet site_name
+
+SELECT tot.genus,
+CASE WHEN commented.comment_count IS NULL THEN 0 ELSE commented.comment_count END *
+100.0 /
+tot.total_count AS percent_commented
+FROM
+(SELECT genus, COUNT(genus) as total_count
+FROM data
+WHERE TRIM(site_name)='Punta Brava'
+GROUP BY genus) as tot
+LEFT JOIN
+(SELECT genus, COUNT(genus) as comment_count
+FROM data
+WHERE comments IS NOT NULL AND UPPER(TRIM(site_name)) IN $site
+GROUP BY genus) as commented
+ON tot.genus = commented.genus;
+

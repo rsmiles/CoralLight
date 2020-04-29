@@ -1,0 +1,13 @@
+# Predators and Competitors per Genus
+
+# Breakdown of predators, competitors and other encounter comments per genus.
+
+@input site fieldlist sheet site_name :upper
+@input genus fieldlist coral genus :upper
+
+SELECT comments, COUNT(*)
+FROM data
+WHERE UPPER(genus) IN $genus
+AND UPPER(TRIM(site_name)) IN $site
+GROUP BY comments;
+

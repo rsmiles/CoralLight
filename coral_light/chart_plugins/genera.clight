@@ -3,7 +3,7 @@
 # Generate a pie chart of all coral genera at specified sites.
 
 @input site fieldlist sheet site_name :upper
-SELECT genus, COUNT(*)
+SELECT genus, COUNT(*) AS count
 FROM data
 WHERE UPPER(TRIM(site_name)) IN $site
 GROUP BY genus;

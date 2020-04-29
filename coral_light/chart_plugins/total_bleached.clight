@@ -1,0 +1,23 @@
+# Total Bleached
+
+# Number of corals affected by paling, bleaching, or partial bleaching
+# vs. those unaffected by bleaching.
+
+@input site fieldlist sheet site_name :upper
+
+SELECT tot.genus,
+CASE WHEN bleached.bleach_count IS NULL THEN 0 ELSE bleached.bleach_count END *
+100 /
+tot.total_count as percent_bleached
+FROM
+(SELECT genus, COUNT(genus) as total_count
+FROM data
+WHERE UPPER(TRIM(site_name)) IN $site
+GROUP BY genus) as tot
+LEFT JOIN
+(SELECT genus, COUNT(genus) as bleach_count
+FROM DATA
+WHERE bleach_code IS NOT NULL AND UPPER(TRIM(site_name)) IN $site
+GROUP BY genus) as bleached
+ON tot.genus = bleached.genus;
+

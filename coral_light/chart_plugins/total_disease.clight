@@ -1,0 +1,22 @@
+# Total Disease
+
+# Number of diseased vs non-diseased colonies at a given site.
+
+@input site fieldlist sheet site_name :upper
+
+SELECT tot.genus,
+CASE WHEN diseased.disease_count IS NULL THEN 0 ELSE diseased.disease_count END *
+100.0 /
+tot.total_count AS percent_diseased
+FROM
+(SELECT genus, COUNT(genus) as total_count
+FROM data
+WHERE TRIM(site_name) = 'Punta Brava'
+GROUP BY genus) as tot
+LEFT JOIN
+(SELECT genus, COUNT(genus) as disease_count
+FROM data
+WHERE disease IS NOT null AND UPPER(TRIM(site_name)) IN $site
+GROUP BY genus) as diseased
+ON tot.genus = diseased.genus;
+

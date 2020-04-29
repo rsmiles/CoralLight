@@ -1,0 +1,13 @@
+# Disease per genus
+
+# Breakdown of diseases found in a given genus.
+
+@input site fieldlist sheet site_name :upper
+@input genus fieldlist coral genus :upper
+
+SELECT disease, COUNT(*)
+FROM data
+WHERE UPPER(genus) = IN $genus
+AND UPPPER(TRIM(site_name)) in $site
+GROUP BY disease;
+

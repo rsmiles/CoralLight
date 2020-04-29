@@ -1,0 +1,14 @@
+# Per genus bleaching.
+
+# Breakdown of Bleaching Codes per Genus.
+
+
+@input site fieldlist sheet site_name :upper
+@input genus fieldlist coral genus :upper
+
+SELECT bleach_code, COUNT(*)
+FROM data
+WHERE UPPER(genus) IN $genus
+AND UPPER(TRIM(site_name)) IN $site
+GROUP BY bleach_code;
+

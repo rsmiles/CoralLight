@@ -1,0 +1,16 @@
+# New Partial Mortality
+
+# Percent of recent partial mortality of each genus.
+# Calculated as total new and transitional partial mortality
+# / number of colonies.
+
+@input site fieldlist sheet site_name
+
+SELECT genus, SUM(pm_new + pm_trans) / COUNT(genus) AS percent_pm
+FROM (SELECT genus,
+CASE WHEN part_mort_new IS NULL THEN 0 ELSE part_mort_new END AS pm_new,
+CASE WHEN part_mort_trans IS NULL THEN 0 ELSE part_mort_trans END AS pm_trans
+FROM data
+WHERE UPPER(TRIM(site_name)) IN $site)
+GROUP BY genus;
+
